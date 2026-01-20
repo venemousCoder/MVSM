@@ -1,0 +1,120 @@
+Project Phase: Upgrade to Visual Script Builder
+
+Overall Goal: Replace the current form-based script builder with an intuitive, visual, node-based editor.
+Phase 3.1: Foundation - Canvas and Static Nodes
+
+Objective: Create the basic visual workspace where nodes can be placed.
+
+Task 3.1.1: Implement the Main Canvas Component
+
+    Create a large, central div to act as the main "canvas" for building the script.
+
+    Implement basic canvas functionalities: zoom in/out, panning (click and drag to move the view).
+
+Task 3.1.2: Design the "Question Node" Component
+
+    Create a reusable QuestionNode component. It should be a visual box that displays:
+
+        A header with the question_text (e.g., "What service would you like?").
+
+        The input_type as a badge (e.g., "Multiple Choice").
+
+        A list of its answer_options (e.g., "Printing", "Registration").
+
+    This component must be draggable on the canvas.
+
+Task 3.1.3: Implement a "Add New Node" Toolbar
+
+    Add a toolbar to the UI with a button: "Add Question".
+
+    Clicking this button should create a new, blank QuestionNode and place it in the center of the current canvas view.
+
+Task 3.1.4: Create a "Node Properties" Sidebar Form
+
+    Create a sidebar form that becomes visible when a QuestionNode is selected.
+
+    This form should contain the existing fields from the old script builder:
+
+        Input for question_text.
+
+        Dropdown to select input_type.
+
+        List to add/remove answer_options.
+
+Phase 3.2: Logic - Connecting Nodes with Visual Links
+
+Objective: Make the visual connections between nodes functional.
+
+Task 3.2.1: Add Connection Handles to Nodes
+
+    Modify the QuestionNode component to have a visual "output handle" (e.g., a small dot or > icon) next to each individual answer option.
+
+    Add a visual "input handle" (e.g., a small dot or < icon) to the top of the QuestionNode to represent where connections can be received.
+
+Task 3.2.2: Implement the Connector Line Component
+
+    Create a ConnectorLine component that can draw an SVG line or arrow between two handles on the canvas.
+
+Task 3.2.3: Enable "Drag-to-Connect" Functionality
+
+    Make the "output handles" draggable.
+
+    When a user drags from an output handle and releases it over another node's "input handle," a permanent ConnectorLine should be created between them.
+
+    This action should save the logical link in the database (e.g., setting the next_question_id for that specific answer_option).
+
+Task 3.2.4: Define the "Start Node"
+
+    Create a special, non-deletable StartNode component.
+
+    This node has only one output handle. Connecting it to a QuestionNode's input handle defines that question as the first one in the script.
+
+Phase 3.3: Data Management & Integrity
+
+Objective: Ensure the visual editor correctly saves and loads the script structure.
+
+Task 3.3.1: Design a Data Structure for the Visual Layout
+
+    Create a data structure to save the visual state (e.g., { nodes: [...], connections: [...] }).
+
+    This structure must store the X/Y coordinates of each node and the details of all connections (which answer connects to which question).
+
+Task 3.3.2: Save and Load the Visual Script
+
+    Modify the "Save Script" button to capture the entire visual layout (node positions and connections) and send it to the backend.
+
+    When editing an existing script, the canvas must be pre-populated with all the nodes and connections from this saved layout data.
+
+Task 3.3.3: Implement Connection Validation
+
+    Add logic to prevent invalid connections, such as:
+
+        Connecting an output to its own node (creating a loop on itself).
+
+        Allowing only one connection per output handle.
+
+Phase 3.4: User Experience (UX) Polish
+
+Objective: Refine the interface to be intuitive and user-friendly.
+
+Task 3.4.1: Implement Node Deletion
+
+    Add a "Delete" (e.g., a trash can icon) button to each QuestionNode.
+
+    Deleting a node should automatically delete all ConnectorLines linked to it and ask for user confirmation.
+
+Task 3.4.2: Visual Feedback
+
+    Provide visual feedback during interactions:
+
+        Highlight a node when it is selected.
+
+        Highlight an input handle when a connection is being dragged over it.
+
+        Change the cursor to a "grabbing" hand when dragging a node or a connection.
+
+Task 3.4.3: Auto-Layout & Snapping
+
+    (Stretch Goal) Implement a simple "Auto-arrange" button that tidies up the node layout to minimize overlapping lines.
+
+    (Stretch Goal) Implement a grid snapping system to help users align nodes neatly.

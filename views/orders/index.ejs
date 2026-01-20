@@ -1,0 +1,107 @@
+<div class="container py-4">
+    <h1 class="mb-4">My Orders</h1>
+
+    <% if (orders && orders.length > 0) { %>
+        <div class="row row-cols-1 gap-4">
+            <% orders.forEach(order => { %>
+                <% 
+                    const isService = order.items.some(i => i.service); 
+                    const queueInfo = order.queueInfo;
+                %>
+                
+                <div class="col">
+                    <% if (isService && queueInfo) { %>
+                        <!-- SERVICE REQUEST CARD STYLE -->
+                        <div class="card shadow-sm border-0 border-start border-4 border-primary">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="fw-bold text-primary mb-0"><i class="fas fa-tools me-2"></i>Request #SRV-<%= order._id.toString().slice(-6).toUpperCase() %></h6>
+                                    <small class="text-muted"><%= new Date(order.createdAt).toLocaleDateString() %></small>
+                                </div>
+                                
+                                <h5 class="card-title mb-3">
+                                    <%= order.business ? order.business.name : 'Business' %> - 
+                                    <%= order.items[0].name %>
+                                </h5>
+                                
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-4">
+                                        <small class="text-muted d-block">Status</small>
+                                        <span class="fw-bold text-warning">
+                                            <i class="fas fa-hourglass-half me-1"></i> In Queue (#<%= queueInfo.position %>)
+                                        </span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-muted d-block">Operator</small>
+                                        <span class="fw-bold">
+                                            <i class="fas fa-user me-1"></i> <%= order.operator ? order.operator.user.name : 'Auto-Assigned' %>
+                                        </span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-muted d-block">Est. Start</small>
+                                        <span class="fw-bold text-info">
+                                            <i class="fas fa-clock me-1"></i> <%= queueInfo.estWait %> minutes
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex gap-2">
+                                    <a href="/services/confirmation/<%= order._id %>" class="btn btn-outline-primary btn-sm"><i class="fas fa-list-ol me-1"></i> View Queue</a>
+                                    <!-- Mock Message Button -->
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="alert('Messaging feature coming soon!')"><i class="fas fa-comment me-1"></i> Message Operator</button>
+                                </div>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <!-- STANDARD RETAIL / COMPLETED SERVICE CARD -->
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="fw-bold">Order #<%= order._id.toString().slice(-6).toUpperCase() %></span>
+                                    <span class="text-muted mx-2">|</span>
+                                    <span class="text-muted"><%= new Date(order.createdAt).toLocaleDateString() %></span>
+                                </div>
+                                <div>
+                                    <% 
+                                        let statusClass = 'bg-secondary';
+                                        if(order.status === 'completed') statusClass = 'bg-success';
+                                        if(order.status === 'processing') statusClass = 'bg-info text-dark';
+                                        if(order.status === 'cancelled') statusClass = 'bg-danger';
+                                        if(order.status === 'pending') statusClass = 'bg-warning text-dark';
+                                    %>
+                                    <span class="badge <%= statusClass %> rounded-pill text-uppercase px-3"><%= order.status %></span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h6 class="mb-2"><i class="fas fa-store me-2 text-primary"></i> <%= order.business ? order.business.name : 'Unknown Business' %></h6>
+                                        <p class="mb-1 text-muted small">
+                                            <% order.items.slice(0, 3).forEach((item, index) => { %>
+                                                <%= item.name %><%= index < order.items.length - 1 && index < 2 ? ', ' : '' %>
+                                            <% }) %>
+                                            <% if(order.items.length > 3) { %> + <%= order.items.length - 3 %> more <% } %>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-2 text-md-center">
+                                        <span class="fw-bold fs-5">$<%= order.totalAmount.toFixed(2) %></span>
+                                    </div>
+                                    <div class="col-md-2 text-md-end mt-3 mt-md-0">
+                                        <a href="/orders/<%= order._id %>" class="btn btn-outline-primary btn-sm w-100">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            <% }) %>
+        </div>
+    <% } else { %>
+        <div class="text-center py-5">
+            <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+            <h3>No orders found</h3>
+            <p class="text-muted">You haven't placed any orders yet.</p>
+            <a href="/" class="btn btn-primary mt-2">Start Shopping</a>
+        </div>
+    <% } %>
+</div>

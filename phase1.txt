@@ -1,0 +1,240 @@
+Perfect — this is exactly the right moment to reset and give your coding agent **a clean, authoritative north star**. Below is a **well-structured, copy-paste-ready master prompt** you can hand directly to your coding agent.
+
+I’ve written it like a senior architect briefing a junior-but-capable engineer: clear goals, constraints, tech stack, and expectations. No ambiguity. No fluff. Just enough guardrails to prevent chaos 😄.
+
+---
+
+# 🧠 **MASTER DEVELOPMENT PROMPT — MULTI-VENDOR SERVICE MARKETPLACE (FOUNDATION PHASE)**
+
+## 🎯 Project Overview
+
+You are building the **foundation layer** of a **Multi-Vendor Service Marketplace**, designed to support both:
+
+* **Retail businesses** (product listings)
+* **Service businesses** (operator-based service workflows)
+
+⚠️ At this stage, **NO payment gateway** is required. The system focuses on **user accounts, roles, UI structure, navigation, and authentication**.
+
+This phase is strictly about:
+
+* Public-facing pages
+* Authentication
+* Layout architecture
+* Role-aware structure
+* Clean, extensible Express setup
+
+Future phases will add listings, operators, queues, scripts, etc.
+**Do not overbuild beyond the scope below.**
+
+---
+
+## 🧱 Tech Stack (Non-Negotiable)
+
+* **Node.js + Express**
+* **EJS** templating engine
+* **Express Layouts** (or a layout pattern using EJS includes)
+* **Express-session**
+* **Passport.js**
+* **passport-local**
+* **connect-flash** (for user-friendly messages)
+* **MongoDB + Mongoose**
+* **Pure CSS** (no Tailwind, no Bootstrap)
+
+---
+
+## 👥 User Roles (Core to the System)
+
+Implement role support from day one.
+
+### Roles:
+
+* `consumer`
+* `sme_owner`
+* `operator`
+* `admin`
+
+> Only `consumer` and `sme_owner` can self-register
+> `operator` accounts are **created later by SME owners**
+> `admin` accounts are system-controlled
+
+Role must be stored on the User model and accessible via `req.user.role`.
+
+---
+
+## 📄 Pages to Build (Preliminary Phase)
+
+### 🌐 Public Pages (No Auth Required)
+
+* `/` → **Homepage**
+* `/about` → About the platform
+* `/contact` → Contact page (static form, no email handling yet)
+* `/login`
+* `/signup` (consumer signup)
+* `/business/register` (SME owner signup)
+
+Each page must:
+
+* Use the global layout
+* Be accessible
+* Be responsive
+* Display flash messages when relevant
+
+---
+
+## 🔐 Authentication Requirements
+
+### Authentication System
+
+* Use **Passport + passport-local**
+* Username field = **email**
+* Password hashing via Passport Local Strategy
+* Session-based authentication (NOT JWT)
+
+### Flash Messaging
+
+Use `connect-flash` to show:
+
+* Login errors
+* Signup validation errors
+* Success messages (e.g. “Account created successfully”)
+* Unauthorized access messages
+
+Messages should be human-readable — no raw error dumps.
+
+---
+
+## 🧩 Layout & View Architecture
+
+### Layout Strategy
+
+Use **layouts and partials** properly.
+
+#### Required Structure (Example)
+
+```
+views/
+ ├── layouts/
+ │   └── main.ejs
+ ├── partials/
+ │   ├── header.ejs
+ │   ├── footer.ejs
+ │   └── flash.ejs
+ ├── pages/
+ │   ├── home.ejs
+ │   ├── about.ejs
+ │   └── contact.ejs
+ ├── auth/
+ │   ├── login.ejs
+ │   ├── signup.ejs
+ │   └── signup-business.ejs
+```
+
+### Layout Responsibilities
+
+* `main.ejs`:
+
+  * `<head>` section
+  * Navigation
+  * Flash messages
+  * Content slot (`<%- body %>`)
+  * Footer
+
+### Partials
+
+* Header should be **auth-aware**:
+
+  * Show Login/Signup if not logged in
+  * Show Logout/Profile if logged in
+* Flash partial should loop through:
+
+  * `success`
+  * `error`
+  * `info`
+
+---
+
+## 🧠 User Model (Initial Version)
+
+```js
+User {
+  name: String,
+  email: { type: String, unique: true },
+  password: String,
+  phone: String,
+  role: {
+    type: String,
+    enum: ['consumer', 'sme_owner', 'operator', 'admin'],
+    default: 'consumer'
+  },
+  createdAt
+}
+```
+
+⚠️ Do NOT add business/operator relationships yet — keep the schema clean and extensible.
+
+---
+
+## 🧪 Validation Rules
+
+* Email must be unique
+* Password minimum length enforced
+* Role assignment:
+
+  * `/signup` → `consumer`
+  * `/business/register` → `sme_owner`
+* Never allow role escalation from client-side input
+
+---
+
+## 🛡️ Middleware Expectations
+
+Implement (even if not fully used yet):
+
+* `ensureAuthenticated`
+* `ensureRole(role)`
+* `redirectIfAuthenticated` (for login/signup pages)
+
+---
+
+## 🎨 UI/UX Expectations
+
+* Clean, neutral, professional
+* No placeholder lorem ipsum everywhere
+* Clear CTAs (especially on homepage)
+* Error messages should help users fix issues, not scare them
+
+---
+
+## 🚫 Explicit Non-Goals (DO NOT BUILD YET)
+
+❌ Product listings
+❌ Service listings
+❌ Operator dashboards
+❌ Orders
+❌ Payments
+❌ Admin panels
+
+This phase is **FOUNDATION ONLY**.
+
+---
+
+## ✅ Final Deliverable Expectations
+
+At the end of this phase, the system should:
+
+✔ Start cleanly with no errors
+✔ Allow users to register and log in
+✔ Show flash messages correctly
+✔ Render pages using layouts and partials
+✔ Persist users in MongoDB
+✔ Support roles internally (even if not visible yet)
+
+---
+
+If you want, next we can:
+
+* Design the **business onboarding flow**
+* Lock down **role-based navigation**
+* Or draft the **folder structure for Phase 2 (Listings + Operators)**
+
+Just say where we’re going next 🚀

@@ -1,0 +1,124 @@
+<div class="container py-4">
+    <div class="mb-4">
+        <a href="/orders" class="text-decoration-none"><i class="fas fa-arrow-left me-2"></i> Back to Orders</a>
+    </div>
+
+    <div class="d-flex justify-content-between flex-wrap align-items-center mb-4">
+        <h1 class="h2 mb-0">Order #<%= order._id.toString().slice(-6).toUpperCase() %></h1>
+        <div class="mt-2 mt-md-0">
+             <% 
+                let statusClass = 'bg-secondary';
+                if(order.status === 'completed') statusClass = 'bg-success';
+                if(order.status === 'processing') statusClass = 'bg-info text-dark';
+                if(order.status === 'cancelled') statusClass = 'bg-danger';
+                if(order.status === 'pending') statusClass = 'bg-warning text-dark';
+            %>
+            <span class="badge <%= statusClass %> fs-6 px-3 py-2 rounded-pill text-uppercase"><%= order.status %></span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <!-- Items -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Items</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <% order.items.forEach(item => { %>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                    <% if(item.itemType === 'service' || item.service) { %>
+                                        <i class="fas fa-tools text-secondary"></i>
+                                    <% } else { %>
+                                        <i class="fas fa-box text-secondary"></i>
+                                    <% } %>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0"><%= item.name %></h6>
+                                    <small class="text-muted">$<%= item.price.toFixed(2) %> x <%= item.quantity %></small>
+                                </div>
+                            </div>
+                            <span class="fw-bold">$<%= (item.price * item.quantity).toFixed(2) %></span>
+                        </div>
+                    <% }) %>
+                    <div class="list-group-item d-flex justify-content-between align-items-center fw-bold bg-light">
+                        <span>Total</span>
+                        <span>$<%= order.totalAmount.toFixed(2) %></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order History / Timeline -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Order Status History</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="timeline list-unstyled">
+                        <% order.history.sort((a,b) => b.createdAt - a.createdAt).forEach(event => { %>
+                            <li class="mb-3 position-relative ps-4 border-start border-2 ms-2">
+                                <span class="position-absolute top-0 start-0 translate-middle bg-white p-1" style="left: -1px;">
+                                    <i class="fas fa-circle text-primary small"></i>
+                                </span>
+                                <div class="ms-2">
+                                    <p class="mb-0 fw-bold text-capitalize"><%= event.action.replace('_', ' ') %></p>
+                                    <p class="mb-0 small text-muted"><%= event.note %></p>
+                                    <small class="text-secondary"><%= new Date(event.createdAt).toLocaleString() %></small>
+                                </div>
+                            </li>
+                        <% }) %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Seller Info -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Sold By</h5>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title"><%= order.business ? order.business.name : 'Unknown Business' %></h5>
+                    <p class="card-text text-muted small mb-3">
+                        <i class="fas fa-envelope me-2"></i> <%= order.business ? order.business.contactEmail : '' %><br>
+                        <i class="fas fa-phone me-2"></i> <%= order.business ? order.business.contactPhone : '' %>
+                    </p>
+                    <a href="/shop/<%= order.business._id %>" class="btn btn-outline-primary w-100 btn-sm">Visit Store</a>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <% if (order.status === 'pending') { %>
+                        <h6 class="text-danger mb-3">Order Actions</h6>
+                        <p class="small text-muted mb-3">You can cancel this order before it is processed by the seller.</p>
+                        <form action="/orders/<%= order._id %>/cancel" method="POST" onsubmit="return confirm('Are you sure you want to cancel this order?');">
+                            <button type="submit" class="btn btn-danger w-100">Cancel Order</button>
+                        </form>
+                    <% } else if (order.status === 'completed') { %>
+                        <h6 class="mb-3">Order Actions</h6>
+                        <% if (typeof hasReviewed !== 'undefined' && hasReviewed) { %>
+                             <div class="alert alert-success py-2 text-center mb-2">
+                                <i class="fas fa-check-circle me-1"></i> Reviewed
+                            </div>
+                            <a href="/orders/<%= order._id %>/review" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-edit me-1"></i> Edit Review
+                            </a>
+                        <% } else { %>
+                            <p class="small text-muted mb-3">Share your experience with the products and services.</p>
+                            <a href="/orders/<%= order._id %>/review" class="btn btn-primary w-100">
+                                <i class="fas fa-star me-1"></i> Write a Review
+                            </a>
+                        <% } %>
+                    <% } else { %>
+                        <p class="text-muted text-center small mb-0">No actions available for this status.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,35 @@
+<div id="operatorSidebar" class="d-flex flex-column flex-shrink-0 p-3 bg-light operator-sidebar">
+    <a href="/operator/dashboard" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
+      <span class="fs-4">MVSM Operator</span>
+    </a>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+      <li class="nav-item">
+        <a href="/operator/dashboard" class="nav-link <%= typeof title != 'undefined' && title === 'Operator Dashboard' ? 'active' : 'link-dark' %>" aria-current="page">
+          Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="/operator/queue" class="nav-link <%= typeof title != 'undefined' && title === 'Queue Management' ? 'active' : 'link-dark' %>">
+          Queue Management
+        </a>
+      </li>
+      <!-- Future links: Schedule, Tasks, etc. -->
+      <li>
+        <a href="#" class="nav-link link-dark">
+          Schedule (Coming Soon)
+        </a>
+      </li>
+    </ul>
+    <hr>
+    <div class="dropdown dropup">
+      <a href="#" class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
+        <strong><%= user.name %></strong>
+      </a>
+      <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
+        <li><a class="dropdown-item" href="#">Profile</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="/users/logout">Sign out</a></li>
+      </ul>
+    </div>
+  </div>

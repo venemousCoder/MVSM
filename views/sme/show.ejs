@@ -1,0 +1,86 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><%= business.name %></h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="/sme/dashboard" class="btn btn-outline-secondary me-2">Back</a>
+        <a href="/sme/business/<%= business._id %>/edit" class="btn btn-sm btn-outline-primary">Edit Details</a>
+    </div>
+</div>
+
+<!-- Business Overview & Quick Actions -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">Overview</div>
+            <% if (business.image) { %>
+                <img src="<%= business.image %>" class="card-img-top" alt="<%= business.name %>" style="max-height: 250px; object-fit: cover;">
+            <% } %>
+            <div class="card-body">
+                <p><strong>Type:</strong> <span class="badge bg-secondary"><%= business.type.toUpperCase() %></span></p>
+                <p><strong>Category:</strong> <%= business.category %></p>
+                <p><strong>Status:</strong> <span class="badge bg-success"><%= business.status.toUpperCase() %></span></p>
+                <p><strong>Address:</strong> <%= business.address %></p>
+                <p><strong>Contact:</strong> <%= business.contactPhone %> | <%= business.contactEmail %></p>
+                <p><strong>Hours:</strong> <%= business.hours || 'N/A' %></p>
+                <p class="mt-3"><%= business.description %></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">Quick Actions</div>
+            <div class="card-body d-grid gap-2">
+                <% if (business.type === 'retail') { %>
+                    <a href="/sme/business/<%= business._id %>/products" class="btn btn-primary"><i class="fas fa-box"></i> Manage Products</a>
+                <% } else if (business.type === 'service') { %>
+                    <a href="/sme/business/<%= business._id %>/services" class="btn btn-primary"><i class="fas fa-concierge-bell"></i> Manage Services</a>
+                    <a href="/sme/business/<%= business._id %>/operators" class="btn btn-info text-white"><i class="fas fa-users"></i> Manage Operators</a>
+                <% } %>
+                <a href="/sme/business/<%= business._id %>/orders" class="btn btn-secondary"><i class="fas fa-shopping-cart"></i> View Orders</a>
+                <a href="/sme/business/<%= business._id %>/analytics" class="btn btn-dark"><i class="fas fa-chart-line"></i> View Analytics</a>
+                <a href="/sme/business/<%= business._id %>/reviews" class="btn btn-warning"><i class="fas fa-star"></i> View Reviews</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Real Metrics -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title"><%= stats.totalOrders %></h3>
+                <p class="card-text text-muted">Total Orders</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title"><%= stats.activeRequests %></h3>
+                <p class="card-text text-muted">Active Requests</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title"><%= business.type === 'service' ? operatorCount : productCount %></h3>
+                <p class="card-text text-muted"><%= business.type === 'service' ? 'Operators' : 'Products' %></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Removed redundant tabs -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Management Center</h5>
+            </div>
+            <div class="card-body p-4 text-center">
+                <p class="text-muted mb-0">Use the <strong>Quick Actions</strong> above to manage your business operations, view orders, and analyze performance.</p>
+            </div>
+        </div>
+    </div>
+</div>

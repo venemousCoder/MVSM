@@ -1,0 +1,126 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Order #<%= order._id.toString().slice(-6).toUpperCase() %></h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="/sme/business/<%= business._id %>/orders/<%= order._id %>/invoice" target="_blank" class="btn btn-sm btn-outline-secondary me-2">
+            <i class="fas fa-print"></i> Print Invoice
+        </a>
+        <a href="/sme/business/<%= business._id %>/orders" class="btn btn-sm btn-outline-primary">
+            Back to Orders
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Left Column: Order Details -->
+    <div class="col-md-8">
+        <!-- Items -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header">Items</div>
+            <ul class="list-group list-group-flush">
+                <% order.items.forEach(function(item) { %>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="my-0"><%= item.name || (item.product ? item.product.name : 'Unknown Item') %></h6>
+                            <small class="text-muted"><%= item.quantity %> x $<%= item.price.toFixed(2) %></small>
+                        </div>
+                        <span class="text-muted">$<%= (item.quantity * item.price).toFixed(2) %></span>
+                    </li>
+                <% }); %>
+                <li class="list-group-item d-flex justify-content-between bg-light">
+                    <span>Total (USD)</span>
+                    <strong>$<%= order.totalAmount.toFixed(2) %></strong>
+                </li>
+            </ul>
+        </div>
+
+        <!-- History / Communication Log -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Order History & Notes</span>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    <% if (order.history && order.history.length > 0) { %>
+                        <% order.history.forEach(function(entry) { %>
+                            <div class="border-start border-2 ps-3 mb-3">
+                                <p class="mb-0 text-muted small"><%= new Date(entry.createdAt).toLocaleString() %></p>
+                                <p class="mb-0">
+                                    <strong><%= entry.user ? entry.user.name : 'System' %></strong>: 
+                                    <% if (entry.action === 'status_change') { %>
+                                        Changed status to <span class="badge bg-secondary"><%= entry.status %></span>
+                                    <% } else { %>
+                                        <%= entry.note %>
+                                    <% } %>
+                                </p>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <p class="text-muted">No history available.</p>
+                    <% } %>
+                </div>
+                
+                <hr>
+                
+                <form action="/sme/business/<%= business._id %>/orders/<%= order._id %>/note" method="POST">
+                    <div class="mb-2">
+                        <textarea name="note" class="form-control" rows="2" placeholder="Add a note..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary">Add Note</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Actions & Customer -->
+    <div class="col-md-4">
+        <!-- Status -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header">Status</div>
+            <div class="card-body">
+                <h3 class="text-center mb-3">
+                     <% if (order.status === 'completed') { %>
+                        <span class="badge bg-success">Completed</span>
+                    <% } else if (order.status === 'pending') { %>
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    <% } else if (order.status === 'processing') { %>
+                        <span class="badge bg-info text-dark">Processing</span>
+                    <% } else { %>
+                        <span class="badge bg-secondary"><%= order.status %></span>
+                    <% } %>
+                </h3>
+                <form action="/sme/business/<%= business._id %>/orders/<%= order._id %>/status" method="POST">
+                    <div class="input-group mb-3">
+                        <select name="status" class="form-select">
+                            <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                            <option value="processing" <%= order.status === 'processing' ? 'selected' : '' %>>Processing</option>
+                            <option value="completed" <%= order.status === 'completed' ? 'selected' : '' %>>Completed</option>
+                            <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                            <option value="refunded" <%= order.status === 'refunded' ? 'selected' : '' %>>Refunded</option>
+                        </select>
+                        <button class="btn btn-outline-secondary" type="submit">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Customer Info -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header">Customer Details</div>
+            <div class="card-body">
+                <% if (order.customer) { %>
+                    <h5 class="card-title">
+                        <%= order.customerName || order.customer.name %>
+                        <% getUserBadges(order.customer).forEach(badge => { %>
+                            <span class="badge bg-<%= badge.color %> ms-1" style="font-size: 0.7em;"><%= badge.label %></span>
+                        <% }) %>
+                    </h5>
+                    <p class="card-text mb-1"><i class="fas fa-envelope"></i> <a href="mailto:<%= order.customerEmail || order.customer.email %>"><%= order.customerEmail || order.customer.email %></a></p>
+                    <p class="card-text text-muted small">Registered User</p>
+                <% } else { %>
+                     <h5 class="card-title"><%= order.customerName || 'Guest' %></h5>
+                     <p class="card-text mb-1"><%= order.customerEmail || 'No email provided' %></p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MVSM - Operator Portal | <%= typeof title != 'undefined' ? title : 'Dashboard' %></title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <!-- Bootstrap 5 CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom Styles override -->
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body {
+      display: block;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .operator-wrapper {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+      position: relative;
+    }
+    .operator-sidebar {
+      width: 280px;
+      min-height: 100vh;
+      border-right: 1px solid #dee2e6;
+      transition: all 0.3s;
+      overflow-y: auto;
+    }
+    .operator-content {
+      flex: 1;
+      padding: 20px;
+      width: 100%;
+      background-color: var(--bg-color);
+    }
+    a {
+        text-decoration: none;
+    }
+
+    /* Mobile Toggle Button */
+    .operator-toggle-btn {
+      display: none;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: #343a40;
+    }
+
+    /* Overlay */
+    .operator-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1040;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .operator-sidebar {
+        position: fixed;
+        top: 0;
+        left: -280px;
+        height: 100vh;
+        z-index: 1050;
+      }
+      .operator-sidebar.active {
+        left: 0;
+      }
+      .operator-toggle-btn {
+        display: block;
+      }
+      .operator-overlay.active {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="operator-wrapper">
+    <!-- Overlay -->
+    <div class="operator-overlay" id="operatorOverlay"></div>
+
+    <!-- Sidebar -->
+    <%- include('../partials/operator-sidebar') %>
+
+    <!-- Main Content -->
+    <div class="operator-content">
+        <button class="operator-toggle-btn" id="operatorToggleBtn">
+          <i class="fas fa-bars"></i>
+        </button>
+        <%- include('../partials/flash') %>
+        <%- body %>
+    </div>
+  </div>
+
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('operatorSidebar');
+        const overlay = document.getElementById('operatorOverlay');
+        const toggleBtn = document.getElementById('operatorToggleBtn');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', toggleSidebar);
+        }
+
+        if (overlay) {
+            overlay.addEventListener('click', toggleSidebar);
+        }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Reviews Overview</h1>
+</div>
+
+<!-- Stats -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                <h3 class="display-4"><%= stats.avgRating %></h3>
+                <p class="text-muted">Average Rating Across All Businesses</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                <h3 class="display-4"><%= stats.totalReviews %></h3>
+                <p class="text-muted">Total Reviews Received</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <h4 class="mb-3">Recent Reviews</h4>
+        <% if (reviews.length > 0) { %>
+            <div class="list-group shadow-sm mb-4">
+                <% reviews.forEach(function(review) { %>
+                    <div class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1 text-warning">
+                                <% for(let i=0; i<5; i++) { %>
+                                    <% if(i < review.rating) { %>
+                                        <i class="fas fa-star"></i>
+                                    <% } else { %>
+                                        <i class="far fa-star"></i>
+                                    <% } %>
+                                <% } %>
+                            </h5>
+                            <small class="text-muted"><%= new Date(review.createdAt).toLocaleDateString() %></small>
+                        </div>
+                        <p class="mb-1"><%= review.comment %></p>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <small class="text-muted">
+                                By <strong><%= review.user ? review.user.name : 'Anonymous' %></strong> 
+                                for <span class="badge bg-secondary"><%= review.business.name %></span>
+                            </small>
+                            <a href="/sme/business/<%= review.business._id %>/reviews" class="btn btn-sm btn-outline-secondary">Go to Business</a>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <div class="alert alert-info">No reviews yet.</div>
+        <% } %>
+    </div>
+    
+    <div class="col-lg-4">
+        <h4 class="mb-3">Select Business</h4>
+        <div class="list-group shadow-sm">
+            <% businesses.forEach(function(business) { %>
+                <a href="/sme/business/<%= business._id %>/reviews" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <%= business.name %>
+                    <i class="fas fa-chevron-right text-muted"></i>
+                </a>
+            <% }); %>
+        </div>
+    </div>
+</div>

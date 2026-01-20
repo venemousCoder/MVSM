@@ -1,0 +1,97 @@
+<div class="container py-4">
+    <h1 class="mb-4">Shopping Cart</h1>
+
+    <% if (cart && cart.items.length > 0) { %>
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col" class="border-0">Product/Service</th>
+                                        <th scope="col" class="border-0">Price</th>
+                                        <th scope="col" class="border-0">Quantity</th>
+                                        <th scope="col" class="border-0">Total</th>
+                                        <th scope="col" class="border-0"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% cart.items.forEach(item => { %>
+                                        <tr>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center">
+                                                    <% 
+                                                        let itemName = item.name;
+                                                        let itemImage = 'https://source.unsplash.com/100x100/?placeholder';
+                                                        if(item.itemType === 'product' && item.product) {
+                                                            itemName = item.product.name;
+                                                            if(item.product.images && item.product.images.length > 0) itemImage = item.product.images[0];
+                                                        } else if(item.itemType === 'service' && item.service) {
+                                                            itemName = item.service.name;
+                                                        }
+                                                    %>
+                                                    <img src="<%= itemImage %>" alt="<%= itemName %>" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                                    <div>
+                                                        <h6 class="mb-0"><%= itemName %></h6>
+                                                        <span class="badge bg-light text-dark border"><%= item.itemType %></span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">$<%= item.price.toFixed(2) %></td>
+                                            <td class="align-middle">
+                                                <form action="/cart/update" method="POST" class="d-flex align-items-center" style="max-width: 150px;">
+                                                    <input type="hidden" name="cartItemId" value="<%= item._id %>">
+                                                    <input type="number" name="qty" value="<%= item.quantity %>" min="1" class="form-control form-control-sm me-2" style="width: 60px;">
+                                                    <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="fas fa-sync-alt"></i></button>
+                                                </form>
+                                            </td>
+                                            <td class="align-middle fw-bold">$<%= (item.price * item.quantity).toFixed(2) %></td>
+                                            <td class="align-middle text-end">
+                                                <form action="/cart/remove" method="POST">
+                                                    <input type="hidden" name="cartItemId" value="<%= item._id %>">
+                                                    <button type="submit" class="btn btn-sm text-danger border-0 bg-transparent"><i class="fas fa-trash-alt"></i></button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a href="/" class="btn btn-outline-primary"><i class="fas fa-arrow-left me-2"></i> Continue Shopping</a>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white border-bottom-0 pt-3">
+                        <h5 class="mb-0">Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Subtotal</span>
+                            <span class="fw-bold">$<%= cart.totalPrice.toFixed(2) %></span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="h5">Total</span>
+                            <span class="h5 fw-bold">$<%= cart.totalPrice.toFixed(2) %></span>
+                        </div>
+                        <a href="/checkout" class="btn btn-success w-100 btn-lg">Proceed to Checkout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } else { %>
+        <div class="text-center py-5">
+            <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+            <h3>Your cart is empty</h3>
+            <p class="text-muted">Looks like you haven't added anything to your cart yet.</p>
+            <a href="/" class="btn btn-primary mt-3">Start Shopping</a>
+        </div>
+    <% } %>
+</div>

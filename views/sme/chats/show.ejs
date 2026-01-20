@@ -1,0 +1,75 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Chat Transcript</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="/sme/business/<%= business._id %>/chats" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Logs
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h6 class="m-0 font-weight-bold">Details</h6>
+            </div>
+            <div class="card-body">
+                <p><strong>Date:</strong> <%= new Date(chat.createdAt).toLocaleString() %></p>
+                <p><strong>Status:</strong> <span class="badge badge-secondary"><%= chat.status.toUpperCase() %></span></p>
+                <hr>
+                <p><strong>Customer:</strong> 
+                    <%= chat.customer ? chat.customer.name : 'Unknown' %>
+                    <% if (chat.customer) { %>
+                        <% getUserBadges(chat.customer).forEach(badge => { %>
+                            <span class="badge bg-<%= badge.color %> ms-1" style="font-size: 0.7em;"><%= badge.label %></span>
+                        <% }) %>
+                    <% } %>
+                </p>
+                <p><strong>Email:</strong> <%= chat.customer ? chat.customer.email : 'N/A' %></p>
+                <hr>
+                <p><strong>Operator:</strong> <%= chat.operator && chat.operator.user ? chat.operator.user.name : 'Unassigned' %></p>
+                <% if (chat.order) { %>
+                    <hr>
+                    <p><strong>Related Order:</strong> <a href="/sme/business/<%= business._id %>/orders/<%= chat.order._id %>">#<%= chat.order._id.toString().slice(-6) %></a></p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Conversation</h6>
+            </div>
+            <div class="card-body bg-light" style="max-height: 600px; overflow-y: auto;">
+                <% if (chat.messages && chat.messages.length > 0) { %>
+                    <% chat.messages.forEach(function(msg) { %>
+                        <div class="mb-3 <%= msg.senderRole === 'system' ? 'text-center' : (msg.senderRole === 'operator' ? 'text-right' : 'text-left') %>">
+                            
+                            <% if(msg.senderRole === 'system') { %>
+                                <small class="text-muted font-italic"><%= msg.content %> - <%= new Date(msg.timestamp).toLocaleTimeString() %></small>
+                            <% } else { %>
+                                <div class="d-inline-block" style="max-width: 80%;">
+                                    <div class="small text-muted mb-1">
+                                        <% if (msg.senderRole === 'operator') { %>
+                                            <i class="fas fa-headset mr-1"></i> Operator (<%= msg.sender && msg.sender.name ? msg.sender.name : 'Op' %>)
+                                        <% } else { %>
+                                            <i class="fas fa-user mr-1"></i> Customer
+                                        <% } %>
+                                        <span class="ml-2"><%= new Date(msg.timestamp).toLocaleTimeString() %></span>
+                                    </div>
+                                    <div class="p-3 rounded <%= msg.senderRole === 'operator' ? 'bg-primary text-white' : 'bg-white border text-dark' %> shadow-sm">
+                                        <%= msg.content %>
+                                    </div>
+                                </div>
+                            <% } %>
+                            
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <p class="text-center text-muted">No messages recorded.</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>

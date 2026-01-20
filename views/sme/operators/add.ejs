@@ -1,0 +1,43 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Operator</h1>
+</div>
+
+<form action="/sme/business/<%= business._id %>/operators/add" method="POST">
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" class="form-control" id="name" name="name" required>
+    </div>
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email" required>
+        <div class="form-text">If the user does not exist, a new account will be created with a temporary password.</div>
+    </div>
+    <div class="mb-3">
+        <label for="role" class="form-label">Role</label>
+        <select class="form-select" id="role" name="role">
+            <option value="staff">Staff</option>
+            <option value="manager">Manager</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Assign Services</label>
+        <% if (services && services.length > 0) { %>
+            <div class="card card-body">
+                <% services.forEach(function(service) { %>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="services" value="<%= service._id %>" id="service_<%= service._id %>">
+                        <label class="form-check-label" for="service_<%= service._id %>">
+                            <%= service.name %>
+                        </label>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <p class="text-muted">No services available. Create services first to assign them.</p>
+        <% } %>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Operator</button>
+    <a href="/sme/business/<%= business._id %>/operators" class="btn btn-secondary">Cancel</a>
+</form>

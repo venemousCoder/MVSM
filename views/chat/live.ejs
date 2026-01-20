@@ -1,0 +1,171 @@
+<%- contentFor('body') %>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments mr-2"></i>
+                        <% if (chat.type === 'internal') { %>
+                            Internal Chat
+                        <% } else { %>
+                            Chat with <%= isCustomer ? 'Operator' : 'Customer' %>
+                        <% } %>
+                    </h5>
+                    <div>
+                        <span id="chat-status" class="badge badge-light text-dark mr-2"><%= chat.status.toUpperCase() %></span>
+                        <% if (isOperator && chat.status === 'active') { %>
+                            <button class="btn btn-sm btn-danger" onclick="closeChat()">End Chat</button>
+                        <% } %>
+                    </div>
+                </div>
+                <div class="card-body bg-light" id="chat-box" style="height: 400px; overflow-y: scroll;">
+                    <% if (chat.messages && chat.messages.length > 0) { %>
+                        <% chat.messages.forEach(function(msg) { %>
+                            <div class="mb-2 <%= msg.senderRole === 'system' ? 'text-center text-muted' : ( (isCustomer && msg.senderRole === 'customer') || (isOperator && msg.senderRole === 'operator') ? 'text-right' : 'text-left' ) %>">
+                                <% if(msg.senderRole !== 'system') { %>
+                                    <div class="d-inline-block p-2 rounded <%= (isCustomer && msg.senderRole === 'customer') || (isOperator && msg.senderRole === 'operator') ? 'bg-primary text-white' : 'bg-white border' %>">
+                                        <%= msg.content %>
+                                    </div>
+                                    <div class="small text-muted mt-1" style="font-size: 0.7em;">
+                                        <%= new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
+                                    </div>
+                                <% } else { %>
+                                    <small><em><%= msg.content %></em></small>
+                                <% } %>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <p class="text-center text-muted mt-5">No messages yet.</p>
+                    <% } %>
+                </div>
+                
+                <% if (chat.status === 'active' || (isOperator && chat.status === 'pending')) { %>
+                <div class="card-footer bg-white" id="input-area">
+                    <% if (isOperator && chat.status === 'pending') { %>
+                        <div class="text-center">
+                            <p class="mb-2">Accept this chat request?</p>
+                            <button class="btn btn-success mr-2" onclick="respondChat('accept')"><i class="fas fa-check"></i> Accept</button>
+                            <button class="btn btn-danger" onclick="respondChat('decline')"><i class="fas fa-times"></i> Decline</button>
+                        </div>
+                    <% } else { %>
+                        <form id="chat-form" class="d-flex">
+                            <input type="text" id="msg-input" class="form-control mr-2" placeholder="Type a message..." autocomplete="off">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+                        </form>
+                    <% } %>
+                </div>
+                <% } else if (chat.status === 'pending') { %>
+                    <div class="card-footer text-center">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                        <span class="ml-2">Waiting for operator to join...</span>
+                    </div>
+                <% } else { %>
+                     <div class="card-footer text-center text-muted">
+                        Chat has ended.
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+    const roomId = '<%= roomId %>'; 
+    const userId = '<%= user._id %>';
+    const userRole = '<%= isCustomer ? "customer" : "operator" %>';
+
+    socket.emit('join_room', roomId);
+
+    const chatBox = document.getElementById('chat-box');
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    socket.on('receive_message', function(data) {
+        const div = document.createElement('div');
+        const isMe = (data.userId === userId);
+        
+        if (data.role === 'system') {
+            div.className = 'mb-2 text-center text-muted';
+            div.innerHTML = `<small><em>${data.content}</em></small>`;
+        } else {
+            div.className = `mb-2 ${isMe ? 'text-right' : 'text-left'}`;
+            const bubbleClass = isMe ? 'bg-primary text-white' : 'bg-white border';
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            div.innerHTML = `
+                <div class="d-inline-block p-2 rounded ${bubbleClass}">
+                    ${data.content}
+                </div>
+                <div class="small text-muted mt-1" style="font-size: 0.7em;">
+                    ${time}
+                </div>
+            `;
+        }
+        
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+    
+    socket.on('chat_status_change', function(data) {
+        location.reload();
+    });
+
+    const form = document.getElementById('chat-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = document.getElementById('msg-input');
+            const content = input.value;
+            if (content.trim()) {
+                socket.emit('send_message', {
+                    room: roomId,
+                    userId: userId,
+                    role: userRole,
+                    content: content
+                });
+                input.value = '';
+            }
+        });
+    }
+
+    // Determine the base URL for API calls. 
+    // If chat.type is internal, we might need a different endpoint or handle it generically?
+    // The existing endpoints are /orders/:id/chat/... which relies on order ID.
+    // We need generic endpoints or specific ones for internal chats.
+    // Assuming for now we are reusing the view but might need different JS fetch URLs.
+    // Wait, the existing JS uses /orders/${orderId}/chat/respond. This breaks if orderId is missing.
+    // I need to inject the correct API URL prefix.
+    
+    const apiPrefix = '<%= typeof apiPrefix != "undefined" ? apiPrefix : "/orders/" + (order ? order._id : "") + "/chat" %>';
+
+    function respondChat(action) {
+        fetch(`${apiPrefix}/respond`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: action })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+
+    function closeChat() {
+        if(!confirm('Are you sure you want to end this chat?')) return;
+        
+        fetch(`${apiPrefix}/close`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+</script>

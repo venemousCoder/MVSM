@@ -1,0 +1,45 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">My Businesses</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="/sme/business/create" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus"></i> Add New Business
+        </a>
+    </div>
+</div>
+
+<% if (businesses && businesses.length > 0) { %>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        <% businesses.forEach(function(business) { %>
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0"><%= business.name %></h5>
+                            <% if (business.status === 'active') { %>
+                                <span class="badge bg-success">Active</span>
+                            <% } else { %>
+                                <span class="badge bg-secondary">Inactive</span>
+                            <% } %>
+                        </div>
+                        <h6 class="card-subtitle mb-2 text-muted"><%= business.type.charAt(0).toUpperCase() + business.type.slice(1) %> - <%= business.category %></h6>
+                        <p class="card-text"><%= business.description.substring(0, 100) %>...</p>
+                        <p class="card-text"><small class="text-muted"><%= business.address %></small></p>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0 d-grid gap-2">
+                        <a href="/sme/business/<%= business._id %>" class="btn btn-outline-primary">Manage</a>
+                        <div class="btn-group w-100">
+                            <a href="/sme/business/<%= business._id %>/edit" class="btn btn-outline-secondary">Edit</a>
+                            <form action="/sme/business/<%= business._id %>/delete" method="POST" onsubmit="return confirm('Are you sure? This will delete the business AND ALL associated data (products, services, operators, etc.) permanently.');" class="d-inline flex-fill">
+                                <button type="submit" class="btn btn-outline-danger w-100" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+<% } else { %>
+    <div class="alert alert-info" role="alert">
+        You haven't added any businesses yet. Click the "Add New Business" button to get started!
+    </div>
+<% } %>

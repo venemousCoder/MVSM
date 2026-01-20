@@ -1,0 +1,148 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Reviews: <%= business.name %></h1>
+</div>
+
+<!-- Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-body text-center">
+                <h3 class="card-title"><%= stats.avgRating %> <i class="fas fa-star text-warning"></i></h3>
+                <p class="card-text">Average Rating</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-secondary mb-3">
+            <div class="card-body text-center">
+                <h3 class="card-title"><%= stats.totalReviews %></h3>
+                <p class="card-text">Total Reviews</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <% if (reviews.length > 0) { %>
+            <% reviews.forEach(function(review) { %>
+                <div class="card mb-3 <%= review.isReported ? 'border-danger' : '' %>">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong><%= review.user ? review.user.name : 'Unknown User' %></strong>
+                            <span class="text-muted mx-2">on</span>
+                            <% if (review.targetType === 'product' && review.product) { %>
+                                <span class="badge bg-primary">Product: <%= review.product.name %></span>
+                            <% } else if (review.targetType === 'service' && review.service) { %>
+                                <span class="badge bg-info">Service: <%= review.service.name %></span>
+                            <% } else { %>
+                                <span class="badge bg-secondary">Unknown Item</span>
+                            <% } %>
+                        </div>
+                        <small class="text-muted"><%= new Date(review.createdAt).toLocaleDateString() %></small>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <% for(let i=1; i<=5; i++) { %>
+                                <i class="fas fa-star <%= i <= review.rating ? 'text-warning' : 'text-muted' %>"></i>
+                            <% } %>
+                        </div>
+                        <p class="card-text"><%= review.comment %></p>
+                        
+                        <% if (review.reply) { %>
+                            <div class="alert alert-light border">
+                                <strong>Your Reply:</strong>
+                                <p class="mb-0"><%= review.reply %></p>
+                            </div>
+                        <% } else { %>
+                            <button class="btn btn-sm btn-outline-primary mb-2" onclick="toggleReplyForm('<%= review._id %>')">Reply</button>
+                            <div id="reply-form-<%= review._id %>" class="d-none">
+                                <div class="input-group">
+                                    <input type="text" id="reply-input-<%= review._id %>" class="form-control" placeholder="Write a response...">
+                                    <button class="btn btn-primary" onclick="submitReply('<%= review._id %>')">Send</button>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                    <div class="card-footer text-muted d-flex justify-content-end">
+                        <button class="btn btn-sm btn-outline-warning me-2" onclick="reportReview('<%= review._id %>')" <%= review.isReported ? 'disabled' : '' %>>
+                            <i class="fas fa-flag"></i> <%= review.isReported ? 'Reported' : 'Report' %>
+                        </button>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="statusSwitch-<%= review._id %>" 
+                                <%= review.status === 'active' ? 'checked' : '' %> 
+                                onchange="toggleStatus('<%= review._id %>', this.checked)">
+                            <label class="form-check-label" for="statusSwitch-<%= review._id %>">Visible</label>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <p class="text-center text-muted">No reviews found.</p>
+        <% } %>
+    </div>
+</div>
+
+<script>
+    const businessId = '<%= business._id %>';
+
+    function toggleReplyForm(id) {
+        const form = document.getElementById(`reply-form-${id}`);
+        form.classList.toggle('d-none');
+    }
+
+    async function submitReply(reviewId) {
+        const input = document.getElementById(`reply-input-${reviewId}`);
+        const reply = input.value;
+        if (!reply) return alert('Please write a reply');
+
+        try {
+            const res = await fetch(`/sme/business/${businessId}/reviews/${reviewId}/reply`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reply })
+            });
+            const data = await res.json();
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error replying');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Error');
+        }
+    }
+
+    async function reportReview(reviewId) {
+        if(!confirm('Report this review as inappropriate?')) return;
+
+        try {
+            const res = await fetch(`/sme/business/${businessId}/reviews/${reviewId}/report`, {
+                method: 'POST'
+            });
+            const data = await res.json();
+            if (data.success) {
+                location.reload();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async function toggleStatus(reviewId, isActive) {
+        const status = isActive ? 'active' : 'hidden';
+        try {
+            await fetch(`/sme/business/${businessId}/reviews/${reviewId}/status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status })
+            });
+            // Optional: show toast/notification
+        } catch (err) {
+            console.error(err);
+            // Revert checkbox if error
+            document.getElementById(`statusSwitch-${reviewId}`).checked = !isActive;
+        }
+    }
+</script>

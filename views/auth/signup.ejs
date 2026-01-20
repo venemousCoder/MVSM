@@ -1,0 +1,46 @@
+<div class="row justify-content-center mt-5">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow-lg border-0 rounded-lg">
+      <div class="card-header bg-success text-white text-center py-4">
+        <h3 class="font-weight-light my-2"><i class="fas fa-user-plus me-2"></i>Create Account</h3>
+      </div>
+      <div class="card-body p-5">
+        <form action="/users/signup" method="POST">
+          <div class="form-floating mb-3">
+            <input class="form-control" id="name" type="text" name="name" placeholder="Enter your name" value="<%= typeof name != 'undefined' ? name : '' %>" required />
+            <label for="name">Full Name</label>
+          </div>
+          <div class="form-floating mb-3">
+            <input class="form-control" id="email" type="email" name="email" placeholder="name@example.com" value="<%= typeof email != 'undefined' ? email : '' %>" required />
+            <label for="email">Email address</label>
+          </div>
+          <div class="form-floating mb-3">
+             <input class="form-control" id="phone" type="tel" name="phone" placeholder="1234567890" value="<%= typeof phone != 'undefined' ? phone : '' %>" />
+             <label for="phone">Phone Number (Optional)</label>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="form-floating mb-3 mb-md-0">
+                <input class="form-control" id="password" type="password" name="password" placeholder="Create a password" value="<%= typeof password != 'undefined' ? password : '' %>" required />
+                <label for="password">Password</label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-floating mb-3 mb-md-0">
+                <input class="form-control" id="confirm_password" type="password" name="confirm_password" placeholder="Confirm password" value="<%= typeof confirm_password != 'undefined' ? confirm_password : '' %>" required />
+                <label for="confirm_password">Confirm Password</label>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 mb-0">
+            <div class="d-grid"><button type="submit" class="btn btn-success btn-block py-2 fw-bold">Create Account</button></div>
+          </div>
+        </form>
+      </div>
+      <div class="card-footer text-center py-3 bg-light">
+        <div class="small mb-1"><a href="/users/login" class="text-decoration-none">Have an account? Go to login</a></div>
+        <div class="small text-muted">Business owner? <a href="/users/business/register" class="fw-bold text-decoration-none">Register here</a></div>
+      </div>
+    </div>
+  </div>
+</div>

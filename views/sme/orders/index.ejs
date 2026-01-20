@@ -1,0 +1,140 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Orders</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="/sme/business/<%= business._id %>/orders/export" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-download"></i> Export CSV
+        </a>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form action="" method="GET" class="row g-3">
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="all" <%= filters.status === 'all' ? 'selected' : '' %>>All Statuses</option>
+                    <option value="pending" <%= filters.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                    <option value="processing" <%= filters.status === 'processing' ? 'selected' : '' %>>Processing</option>
+                    <option value="completed" <%= filters.status === 'completed' ? 'selected' : '' %>>Completed</option>
+                    <option value="cancelled" <%= filters.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <input type="text" name="search" class="form-control" placeholder="Search by Order ID, Customer Name..." value="<%= filters.search || '' %>">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Orders List -->
+<form action="/sme/business/<%= business._id %>/orders/bulk" method="POST" id="bulkForm">
+    <div class="row mb-2 align-items-center">
+        <div class="col-auto">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="selectAll">
+                <label class="form-check-label" for="selectAll">Select All</label>
+            </div>
+        </div>
+        <div class="col-auto">
+            <select name="action" class="form-select form-select-sm" id="bulkActionSelect">
+                <option value="">Bulk Actions...</option>
+                <option value="update_status">Update Status</option>
+            </select>
+        </div>
+        <div class="col-auto d-none" id="statusSelectContainer">
+             <select name="status" class="form-select form-select-sm">
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-sm btn-secondary">Apply</button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th scope="col" style="width: 40px;"></th>
+                    <th scope="col">Order ID</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (orders.length > 0) { %>
+                    <% orders.forEach(function(order) { %>
+                        <tr>
+                            <td>
+                                <input class="form-check-input order-checkbox" type="checkbox" name="orderIds[]" value="<%= order._id %>">
+                            </td>
+                            <td>
+                                <a href="/sme/business/<%= business._id %>/orders/<%= order._id %>">
+                                    #<%= order._id.toString().slice(-6).toUpperCase() %>
+                                </a>
+                            </td>
+                            <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
+                            <td>
+                                <% if (order.customerName) { %>
+                                    <%= order.customerName %>
+                                <% } else if (order.customer) { %>
+                                    <%= order.customer.name %>
+                                    <% getUserBadges(order.customer).forEach(badge => { %>
+                                        <br><span class="badge bg-<%= badge.color %>" style="font-size: 0.6em;"><%= badge.label %></span>
+                                    <% }) %>
+                                <% } else { %>
+                                    Guest
+                                <% } %>
+                            </td>
+                            <td>$<%= order.totalAmount.toFixed(2) %></td>
+                            <td>
+                                <% if (order.status === 'completed') { %>
+                                    <span class="badge bg-success">Completed</span>
+                                <% } else if (order.status === 'pending') { %>
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                <% } else if (order.status === 'processing') { %>
+                                    <span class="badge bg-info text-dark">Processing</span>
+                                <% } else { %>
+                                    <span class="badge bg-secondary"><%= order.status %></span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <a href="/sme/business/<%= business._id %>/orders/<%= order._id %>" class="btn btn-sm btn-outline-primary">View</a>
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="7" class="text-center py-4">No orders found matching your criteria.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</form>
+
+<script>
+    document.getElementById('selectAll').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.order-checkbox');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+    });
+
+    document.getElementById('bulkActionSelect').addEventListener('change', function() {
+        const container = document.getElementById('statusSelectContainer');
+        if (this.value === 'update_status') {
+            container.classList.remove('d-none');
+        } else {
+            container.classList.add('d-none');
+        }
+    });
+</script>

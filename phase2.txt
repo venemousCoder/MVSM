@@ -1,0 +1,457 @@
+PHASE 2: SME OWNER FLOW & PLATFORM ARCHITECTURE
+Project Context
+
+We are building a Multi-Vendor Service Marketplace that supports:
+
+Retail businesses (products, inventory, orders)
+
+Service businesses (operators, queues, scripts, bookings)
+
+This prompt defines the entire SME Owner journey, but implementation must be incremental, structured, and future-proof.
+
+You are NOT building everything at once.
+You are building the skeleton, flow, routing, authorization, and page structure that all future logic will plug into.
+
+Core Technical Stack
+
+Backend: Node.js + Express
+
+Views: EJS
+
+Layouts: Express layouts (global + SME layout)
+
+Partials: Header, footer, sidebar, flash messages
+
+Auth: Passport + passport-local
+
+Sessions: express-session
+
+Flash Messaging: connect-flash
+
+Database: MongoDB (via Mongoose)
+
+Authorization: Role-based access control
+
+Roles & Access Control
+
+Roles include at minimum:
+
+consumer
+
+sme_owner
+
+(future: operator, admin)
+
+🔒 Critical Rule
+All pages in this prompt are ONLY accessible to users with:
+
+role === "sme_owner"
+
+
+Unauthorized access must:
+
+Redirect unauthenticated users → /login
+
+Block wrong roles → /unauthorized
+
+PHASE 2 SCOPE
+
+This phase focuses exclusively on the SME Owner experience, from:
+
+Registration
+
+Business creation
+
+Team setup
+
+Inventory / service setup
+
+Daily operations monitoring
+
+Analytics & settings scaffolding
+
+❌ Payment processing
+❌ Checkout
+❌ Real-time sockets
+❌ Deep analytics logic
+
+(Mock data is acceptable where real logic is not yet implemented.)
+
+🔐 1. AUTHENTICATION FLOW
+Page 1.1: Registration Page
+
+Purpose: Create a new SME Owner account
+
+Features
+
+Account type selection:
+
+Consumer
+
+SME Owner
+
+Basic information form:
+
+Name
+
+Email
+
+Phone
+
+Password
+
+Terms & conditions acceptance
+
+Email or phone verification scaffold
+
+Navigation
+Register → Login
+
+Page 1.2: Login Page
+
+Purpose: Authenticate existing users
+
+Features
+
+Email/username + password
+
+Remember me
+
+Forgot password link
+
+Optional social login placeholder
+
+Navigation
+Login → SME Owner Dashboard
+
+Page 1.3: Forgot Password Flow
+
+Pages:
+
+Enter email
+
+Reset password (via token)
+
+Confirmation page
+
+🧭 2. SME OWNER DASHBOARD & BUSINESS MANAGEMENT
+Page 2.1: SME Owner Main Dashboard
+
+Purpose: Central control hub
+
+Features
+
+Overview of all businesses owned by the SME
+
+Quick stats (mock allowed):
+
+Total orders
+
+Revenue
+
+Pending service requests
+
+Recent activity feed
+
+Add New Business button
+
+Persistent sidebar navigation
+
+Navigation
+Dashboard → All SME sections
+
+Page 2.2: Create Business Page
+
+Purpose: Register a new business or branch
+
+Features
+
+Business name
+
+Business type:
+
+Retail
+
+Service
+
+Category selection
+
+Description
+
+Address & contact info
+
+Business hours
+
+Logo/banner upload (placeholder)
+
+Backend Rules
+
+Business must belong to the logged-in SME Owner
+
+Business type must be explicitly stored
+
+Use flash messages for success/errors
+
+Navigation
+Create Business → Business Details Page
+
+Page 2.3: Business Details Page
+
+Purpose: Manage a specific business
+
+Features
+
+Business profile display
+
+Quick action buttons
+
+Performance metrics (mock allowed)
+
+Tabs for:
+
+Products
+
+Services
+
+Operators
+
+Orders
+
+Analytics
+
+🔁 UI must adapt based on business type
+(e.g., Retail ≠ Service)
+
+👥 3. TEAM MANAGEMENT FLOW
+Page 3.1: Operators Management Page
+
+Purpose: Manage operators for a business
+
+Features
+
+List of operators
+
+Status (active/inactive)
+
+Search & filter
+
+Quick actions (edit, deactivate)
+
+Add New Operator button
+
+Page 3.2: Add Operator Page
+
+Purpose: Assign an operator to a business
+
+Features
+
+Operator details
+
+Permission settings
+
+Service assignment (service businesses)
+
+Schedule preferences
+
+Invitation flow scaffold
+
+Page 3.3: Operator Details Page
+
+Purpose: Manage a specific operator
+
+Features
+
+Operator profile
+
+Performance metrics
+
+Queue status (services)
+
+Schedule management
+
+Permissions editing
+
+📦 4. PRODUCT MANAGEMENT (RETAIL ONLY)
+Page 4.1: Products Catalog
+
+Product list/grid
+
+Search & filters
+
+Inventory indicators
+
+Add Product button
+
+Bulk actions
+
+Page 4.2: Add Product Page
+
+Product info
+
+Pricing
+
+Inventory
+
+Images
+
+Categories & tags
+
+SEO fields
+
+Page 4.3: Product Details / Edit Page
+
+Full product data
+
+Sales stats
+
+Reviews management
+
+Stock updates
+
+🧠 5. SERVICE MANAGEMENT (SERVICE ONLY)
+Page 5.1: Services Management
+
+List services
+
+Pricing
+
+Status indicators
+
+Add Service button
+
+Page 5.2: Add Service Page
+
+Service details
+
+Duration & pricing model
+
+Required operator skills
+
+Service Script Builder integration
+
+Booking rules
+
+Page 5.3: Service Script Builder
+
+Visual Editor
+
+Flowchart-based UI
+
+Question nodes
+
+Branching logic
+
+Preview mode
+
+Page 5.4: Service Queue Dashboard
+
+Real-time queue scaffold
+
+Operator timelines
+
+Status controls
+
+Customer details
+
+📑 6. ORDERS & CUSTOMERS
+Orders Management
+
+Filter by status
+
+Bulk updates
+
+Order preview
+
+Export
+
+Order Details
+
+Order info
+
+Customer contact
+
+Items/services
+
+Status updates
+
+Invoice generation scaffold
+
+Customers Management
+
+Customer list
+
+Segmentation
+
+History
+
+Loyalty (future)
+
+📊 7. ANALYTICS & REPORTS
+Analytics Dashboard
+
+Revenue charts
+
+Top products/services
+
+Operator performance
+
+Trends (mock OK)
+
+Reports Generator
+
+Report types
+
+Date range
+
+Export (PDF/CSV/Excel)
+
+Scheduled reports
+
+⚙️ 8. SETTINGS & CONFIGURATION
+Account Settings
+
+Profile update
+
+Password change
+
+Notifications
+
+2FA scaffold
+
+Deactivation
+
+Business Settings
+
+Business info
+
+Payments (placeholder)
+
+Tax
+
+Shipping (retail)
+
+Hours & holidays
+
+Billing & Subscription
+
+Plan info
+
+Upgrade/downgrade
+
+Invoices
+
+Payment history
+
+🧩 9. SUPPORTING PAGES
+
+Help & Support Center
+
+Activity Logs (audit trail)
+
+Ratings & Reviews Management
+
+🎯 FINAL DIRECTIVE 
+
+Implement clean routing, clear ownership checks, role-based protection, and layout consistency.
+Favor scaffolding over premature optimization.
+Every page must clearly support future expansion without refactors.

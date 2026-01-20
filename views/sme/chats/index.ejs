@@ -1,0 +1,69 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Chat Logs</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="/sme/business/<%= business._id %>" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Business
+        </a>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">History</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Customer</th>
+                        <th>Operator</th>
+                        <th>Status</th>
+                        <th>Messages</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (chats && chats.length > 0) { %>
+                        <% chats.forEach(function(chat) { %>
+                            <tr>
+                                <td><%= new Date(chat.createdAt).toLocaleDateString() %> <%= new Date(chat.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %></td>
+                                <td>
+                                    <%= chat.customer ? chat.customer.name : 'Unknown' %>
+                                    <% if (chat.customer) { %>
+                                        <% getUserBadges(chat.customer).forEach(badge => { %>
+                                            <br><span class="badge bg-<%= badge.color %>" style="font-size: 0.6em;"><%= badge.label %></span>
+                                        <% }) %>
+                                    <% } %>
+                                </td>
+                                <td><%= chat.operator && chat.operator.user ? chat.operator.user.name : 'Unassigned' %></td>
+                                <td>
+                                    <% if (chat.status === 'active') { %>
+                                        <span class="badge badge-success">Active</span>
+                                    <% } else if (chat.status === 'ended') { %>
+                                        <span class="badge badge-secondary">Ended</span>
+                                    <% } else if (chat.status === 'declined') { %>
+                                        <span class="badge badge-danger">Declined</span>
+                                    <% } else { %>
+                                        <span class="badge badge-warning"><%= chat.status %></span>
+                                    <% } %>
+                                </td>
+                                <td><%= chat.messages ? chat.messages.length : 0 %></td>
+                                <td>
+                                    <a href="/sme/business/<%= business._id %>/chats/<%= chat._id %>" class="btn btn-sm btn-primary">
+                                        View Transcript
+                                    </a>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="6" class="text-center">No chat history found.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

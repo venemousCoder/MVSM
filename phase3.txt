@@ -1,0 +1,367 @@
+🧠 MASTER PROMPT — PROJECT PHASE 3
+Advanced Visual Script Builder (Professional-Grade)
+ROLE
+
+You are a senior frontend + systems engineer tasked with building a visual scripting environment for SME service workflows.
+
+This is not a form builder.
+This is not a simple drag-and-drop toy.
+This is a node-based visual programming environment, inspired by:
+
+Unity Visual Scripting (Bolt)
+
+Figma (canvas UX)
+
+Unreal Blueprints (logic flow clarity)
+
+The goal is to allow non-technical SME owners to design complex, branching service flows visually, while preserving machine-executable structure underneath.
+
+🎯 CORE OBJECTIVE
+
+Build a Visual Script Builder that allows:
+
+Designing conversational service flows
+
+Defining logic, conditions, variables, and actions
+
+Previewing and debugging flows
+
+Exporting flows as structured JSON for backend execution
+
+This builder is central infrastructure, not a UI afterthought.
+
+🧩 HIGH-LEVEL SYSTEM PRINCIPLES
+
+Everything is a Node
+
+Execution Flow ≠ Data Flow
+
+Visual clarity > raw power
+
+Invalid states must be impossible
+
+Non-technical users must succeed without reading docs
+
+🖼️ PHASE 3.1 — CANVAS & WORKSPACE FOUNDATION
+Your first responsibility:
+
+Build a robust, extensible canvas system.
+
+Canvas Requirements
+
+Infinite canvas (virtualized, not DOM-heavy)
+
+Zoom range: 0.1x → 10x
+
+Smooth pan via mouse drag / trackpad
+
+Optional snap-to-grid
+
+Grid + ruler guides
+
+Multiple view modes:
+
+Flow View (default)
+
+Outline View (tree / hierarchy)
+
+Code View (read-only JSON)
+
+⚠️ Canvas must be decoupled from node logic — rendering ≠ execution.
+
+🧰 TOOLBAR & WORKSPACE CONTROLS
+
+Implement a professional toolbar, not buttons scattered randomly.
+
+Required Tools
+
+Select
+
+Hand (pan)
+
+Node creation
+
+Connection tool
+
+Zoom controls
+
+Undo / Redo
+
+Save
+
+Preview / Run
+
+Undo/Redo must be state-based, not DOM hacks.
+
+📚 SIDE PANELS (CRITICAL UX)
+Left Panel — Node Library
+
+Nodes must be grouped by intent, not technicality:
+
+Input Nodes
+
+Logic Nodes
+
+Action Nodes
+
+Flow Control
+
+Nodes are dragged onto canvas, never auto-inserted.
+
+Right Panel — Inspector
+
+The inspector is the single source of truth for:
+
+Node properties
+
+Validation errors
+
+Metadata
+
+Position/state
+
+⚠️ No inline “mystery edits” on nodes.
+All configuration happens in the Inspector.
+
+🧠 PHASE 3.2 — NODE SYSTEM ARCHITECTURE
+Core Rule:
+
+Every node inherits from a BaseNode abstraction.
+
+Each node must define:
+
+Metadata (id, type, category)
+
+Input ports
+
+Output ports
+
+Serializable properties
+
+Validation rules
+
+Nodes fall into:
+
+Input
+
+Logic
+
+Action
+
+Flow Control
+
+⚠️ StartNode and EndNode are mandatory constraints.
+
+🎨 NODE VISUAL SYSTEM
+
+Nodes must:
+
+Be visually distinct by category (color-coded)
+
+Have clear headers
+
+Show ports clearly
+
+Communicate errors visually (red states, tooltips)
+
+Ports are typed.
+Connections without type compatibility must be blocked.
+
+🔌 PHASE 3.3 — CONNECTION & FLOW SYSTEM
+There are THREE connection types:
+
+Flow connections (execution order)
+
+Data connections (value passing)
+
+Reference connections (variables/resources)
+
+Each must:
+
+Be visually distinct
+
+Enforce validation rules
+
+Prevent circular execution unless explicitly allowed
+
+Connection creation must be guided and forgiving, not free-form chaos.
+
+🧪 CONNECTION VALIDATION
+
+You must enforce:
+
+Type compatibility
+
+Direction correctness
+
+Business constraints (e.g. EndNode has no outputs)
+
+Circular reference warnings
+
+Invalid connections are blocked, not “fixed later”.
+
+📊 PHASE 3.4 — VARIABLE & DATA SYSTEM
+Variables are FIRST-CLASS ENTITIES
+
+Support:
+
+Global variables
+
+Flow-scoped variables
+
+Variables must:
+
+Be typed
+
+Be inspectable at runtime
+
+Be usable via Get/Set nodes
+
+No “magic strings”. Ever.
+
+🔄 DATA TRANSFORMATION
+
+Provide nodes for:
+
+Math
+
+Text formatting
+
+Type conversion
+
+These nodes must be:
+
+Deterministic
+
+Stateless
+
+Pure (input → output)
+
+🧠 PHASE 3.5 — LOGIC & CONTROL FLOW
+Conditional Logic
+
+Support:
+
+If / Else branching
+
+Multi-case Switch nodes
+
+Looping over collections
+
+Branching must be visually obvious, not hidden.
+
+🚀 PHASE 3.6 — ADVANCED FEATURES
+Sub-Graphs / Components
+
+Allow users to:
+
+Group nodes into reusable components
+
+Reuse components across flows
+
+Edit components independently
+
+This is non-negotiable for scale.
+
+Comments & Annotations
+
+Support:
+
+Free-form comments
+
+Node-attached comments
+
+Metadata (author, date)
+
+This is essential for collaboration and maintenance.
+
+Debugger
+
+Provide:
+
+Step-through execution
+
+Variable watch panel
+
+Active-node highlighting
+
+Breakpoints
+
+Debugging is visual, not console-based.
+
+📤 PHASE 3.7 — EXPORT & INTEGRATION
+
+Flows must export as:
+
+Canonical JSON (for backend execution)
+
+Visual assets (PNG/SVG)
+
+Documentation (PDF)
+
+JSON output must be:
+
+Versioned
+
+Deterministic
+
+Backend-safe
+
+🎓 PHASE 3.8 — UX, ONBOARDING & COLLABORATION
+Onboarding
+
+First-time users must be guided through:
+
+Creating a start node
+
+Adding a question
+
+Connecting nodes
+
+Running preview
+
+No blank canvas anxiety allowed.
+
+Help System
+
+Contextual, inline, actionable help:
+
+Tooltips
+
+“What is this?” actions
+
+Examples
+
+Collaboration (Future-Proof)
+
+Design with:
+
+Multi-user editing in mind
+
+Version history
+
+Permissions
+
+Even if real-time isn’t implemented yet, the data model must allow it.
+
+🛠️ IMPLEMENTATION MINDSET (VERY IMPORTANT)
+
+Build foundations before polish
+
+Favor correct abstractions over speed
+
+No hardcoded node logic
+
+Everything must be serializable
+
+Assume flows will grow to hundreds of nodes
+
+✅ SUCCESS CRITERIA
+
+The system is successful when:
+
+An SME owner can build a complex service flow without code
+
+The exported JSON can be executed deterministically
+
+The UI feels closer to Figma + Unity, not “admin panel”

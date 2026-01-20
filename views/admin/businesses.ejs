@@ -1,0 +1,86 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Manage Businesses</h1>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form action="/admin/businesses/bulk" method="POST">
+            <div class="mb-3 d-flex align-items-center">
+                <select name="action" class="form-select w-auto me-2" required>
+                    <option value="" selected disabled>Bulk Actions</option>
+                    <option value="activate">Activate</option>
+                    <option value="suspend">Suspend</option>
+                </select>
+                <button type="submit" class="btn btn-outline-secondary btn-sm" onclick="return confirm('Apply bulk action?')">Apply</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 40px;"><input type="checkbox" class="form-check-input" id="selectAllBusinesses"></th>
+                            <th>Business Name</th>
+                            <th>Owner</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (businesses.length > 0) { %>
+                            <% businesses.forEach(b => { %>
+                                <tr>
+                                    <td><input type="checkbox" class="form-check-input business-checkbox" name="businessIds" value="<%= b._id %>"></td>
+                                    <td>
+                                        <div class="fw-bold"><%= b.name %></div>
+                                        <small class="text-muted"><%= b.address %></small>
+                                    </td>
+                                    <td>
+                                        <div><%= b.owner ? b.owner.name : 'Unknown' %></div>
+                                        <small class="text-muted"><%= b.owner ? b.owner.email : '' %></small>
+                                    </td>
+                                    <td class="text-capitalize"><%= b.type %></td>
+                                    <td>
+                                        <% if(b.status === 'active') { %>
+                                            <span class="badge bg-success">Active</span>
+                                        <% } else if(b.status === 'suspended') { %>
+                                            <span class="badge bg-warning text-dark">Suspended</span>
+                                        <% } else { %>
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="/shop/<%= b._id %>" target="_blank" class="btn btn-sm btn-outline-primary" title="View Store">
+                                                <i class="fas fa-external-link-alt"></i>
+                                            </a>
+                                            <% if(b.status === 'active') { %>
+                                                <button type="submit" formaction="/admin/businesses/<%= b._id %>/status" class="btn btn-sm btn-outline-warning ms-1" title="Suspend" onclick="return confirm('Suspend this business?')">
+                                                    <i class="fas fa-pause"></i>
+                                                </button>
+                                            <% } else { %>
+                                                <button type="submit" formaction="/admin/businesses/<%= b._id %>/status" class="btn btn-sm btn-outline-success ms-1" title="Activate">
+                                                    <i class="fas fa-play"></i>
+                                                </button>
+                                            <% } %>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="6" class="text-center">No businesses found.</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('selectAllBusinesses').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.business-checkbox');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+    });
+</script>

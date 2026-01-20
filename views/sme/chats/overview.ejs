@@ -1,0 +1,73 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Chats Overview</h1>
+</div>
+
+<div class="row">
+    <!-- Select Business Card -->
+    <div class="col-md-12 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">View Chats by Business</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <% businesses.forEach(function(b) { %>
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100 border-left-primary shadow-sm">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="card-title font-weight-bold mb-1"><%= b.name %></h5>
+                                            <p class="card-text text-muted small"><%= b.type.toUpperCase() %></p>
+                                        </div>
+                                        <a href="/sme/business/<%= b._id %>/chats" class="btn btn-primary btn-sm">View Logs</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Recent Chats (All Businesses)</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Business</th>
+                        <th>Customer</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (chats && chats.length > 0) { %>
+                        <% chats.forEach(function(chat) { %>
+                            <tr>
+                                <td><%= new Date(chat.createdAt).toLocaleDateString() %> <%= new Date(chat.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %></td>
+                                <td><%= chat.operator && chat.operator.business ? chat.operator.business.name : 'Unknown' %></td>
+                                <td><%= chat.customer ? chat.customer.name : 'Unknown' %></td>
+                                <td><span class="badge badge-secondary"><%= chat.status %></span></td>
+                                <td>
+                                    <% if(chat.operator && chat.operator.business) { %>
+                                        <a href="/sme/business/<%= chat.operator.business._id %>/chats/<%= chat._id %>" class="btn btn-sm btn-info">View</a>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr><td colspan="5" class="text-center">No recent chats.</td></tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

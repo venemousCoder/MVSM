@@ -1,0 +1,115 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Products</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="/sme/business/<%= business._id %>/products/add" class="btn btn-sm btn-outline-primary">
+            Add Product
+        </a>
+    </div>
+</div>
+
+<form action="/sme/business/<%= business._id %>/products/bulk" method="POST" id="bulkForm">
+    <div class="row mb-3 align-items-center">
+        <div class="col-auto">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="selectAll">
+                <label class="form-check-label" for="selectAll">Select All</label>
+            </div>
+        </div>
+        <div class="col-auto">
+            <select name="action" id="bulkAction" class="form-select form-select-sm">
+                <option value="">Bulk Actions...</option>
+                <option value="activate">Set Active</option>
+                <option value="deactivate">Set Inactive</option>
+                <option value="set_price">Set Fixed Price</option>
+                <option value="adjust_price">Adjust Price (%)</option>
+            </select>
+        </div>
+        <div class="col-auto d-none" id="priceInputContainer">
+            <input type="number" name="value" class="form-control form-control-sm" placeholder="Value" step="0.01">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <% if (products.length > 0) { %>
+            <% products.forEach(function(product) { %>
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div class="form-check">
+                                <input class="form-check-input product-checkbox" type="checkbox" name="productIds[]" value="<%= product._id %>">
+                            </div>
+                            <div>
+                                <% if (product.status === 'active') { %>
+                                    <span class="badge bg-success">Active</span>
+                                <% } else { %>
+                                    <span class="badge bg-secondary">Inactive</span>
+                                <% } %>
+                            </div>
+                        </div>
+                        <% if(product.images && product.images.length > 0) { %>
+                            <img src="<%= product.images[0] %>" class="card-img-top" alt="<%= product.name %>" style="height: 200px; object-fit: cover;">
+                        <% } else { %>
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <span class="text-muted"><i class="fas fa-image fa-2x"></i></span>
+                            </div>
+                        <% } %>
+                        <div class="card-body">
+                            <h5 class="card-title"><%= product.name %></h5>
+                            <p class="card-text"><%= product.description %></p>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-muted">$<%= product.price %></small>
+                                <small class="text-muted">Stock: <%= product.stock %></small>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group">
+                                    <a href="/sme/business/<%= business._id %>/products/<%= product._id %>/edit" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <!-- Use a separate form for individual delete to avoid nesting forms -->
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteProduct('<%= product._id %>')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <p class="text-center">No products found.</p>
+        <% } %>
+    </div>
+</form>
+
+<!-- Hidden form for individual deletion to allow submitting outside the main form -->
+<form id="deleteForm" method="POST" style="display: none;"></form>
+
+<script>
+    // Select All functionality
+    document.getElementById('selectAll').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.product-checkbox');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+    });
+
+    // Toggle Price Input
+    document.getElementById('bulkAction').addEventListener('change', function() {
+        const container = document.getElementById('priceInputContainer');
+        if (this.value === 'set_price' || this.value === 'adjust_price') {
+            container.classList.remove('d-none');
+        } else {
+            container.classList.add('d-none');
+        }
+    });
+
+    // Individual Delete Handler
+    function deleteProduct(id) {
+        if (confirm('Are you sure you want to delete this product?')) {
+            const form = document.getElementById('deleteForm');
+            form.action = '/sme/business/<%= business._id %>/products/' + id + '/delete';
+            form.submit();
+        }
+    }
+</script>

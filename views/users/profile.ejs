@@ -1,0 +1,70 @@
+<div class="container py-5">
+    <div class="mb-4">
+        <a href="javascript:history.back()" class="text-decoration-none"><i class="fas fa-arrow-left me-2"></i> Back</a>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white py-3 d-flex align-items-center">
+                    <h4 class="mb-0 me-2"><i class="fas fa-user-circle me-2 text-primary"></i>My Profile</h4>
+                    <% getUserBadges(user).forEach(badge => { %>
+                        <span class="badge bg-<%= badge.color %> ms-1"><%= badge.label %></span>
+                    <% }) %>
+                </div>
+                <div class="card-body">
+                    <form action="/users/profile" method="POST">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" name="name" value="<%= user.name %>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" value="<%= user.email %>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" value="<%= user.phone || '' %>">
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <h5 class="mb-3">Change Password <small class="text-muted fw-normal fs-6">(Leave blank to keep current)</small></h5>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="password" name="password" minlength="6">
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" minlength="6">
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0"><i class="fas fa-bell me-2 text-warning"></i>Notification Preferences</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/users/notifications" method="POST">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="emailNotif" name="email" <%= user.notifications.email ? 'checked' : '' %>>
+                            <label class="form-check-label" for="emailNotif">Email Notifications</label>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="smsNotif" name="sms" <%= user.notifications.sms ? 'checked' : '' %>>
+                            <label class="form-check-label" for="smsNotif">SMS Notifications</label>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-outline-secondary">Save Preferences</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

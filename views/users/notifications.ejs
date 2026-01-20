@@ -1,0 +1,43 @@
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3><i class="fas fa-bell text-primary me-2"></i>Notifications</h3>
+        <% if (notifications && notifications.some(n => !n.isRead)) { %>
+            <form action="/notifications/read-all" method="POST">
+                <button type="submit" class="btn btn-sm btn-outline-secondary">Mark All as Read</button>
+            </form>
+        <% } %>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <% if (notifications && notifications.length > 0) { %>
+                <div class="list-group shadow-sm">
+                    <% notifications.forEach(notif => { %>
+                        <a href="<%= notif.link || '#' %>" class="list-group-item list-group-item-action <%= !notif.isRead ? 'bg-light border-start border-4 border-primary' : '' %>" onclick="markRead('<%= notif._id %>')">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1 <%= !notif.isRead ? 'fw-bold' : '' %>"><%= notif.title %></h5>
+                                <small class="text-muted"><%= new Date(notif.createdAt).toLocaleString() %></small>
+                            </div>
+                            <p class="mb-1"><%= notif.message %></p>
+                            <small class="text-muted text-capitalize"><i class="fas fa-info-circle me-1"></i> <%= notif.type %></small>
+                        </a>
+                    <% }) %>
+                </div>
+            <% } else { %>
+                <div class="text-center py-5">
+                    <i class="far fa-bell-slash fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No notifications yet.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<script>
+    function markRead(id) {
+        // Optimistically mark as read in UI (remove highlight)
+        // Note: The link click will navigate away, but if link is # or opens in new tab, this helps.
+        // Also if we use fetch, we can update status without reload.
+        fetch(`/notifications/${id}/read`, { method: 'POST' });
+    }
+</script>

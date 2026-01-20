@@ -1,0 +1,81 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Manage Reports</h1>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form action="/admin/reports/bulk" method="POST">
+            <div class="mb-3 d-flex align-items-center">
+                <select name="action" class="form-select w-auto me-2" required>
+                    <option value="" selected disabled>Bulk Actions</option>
+                    <option value="dismiss">Dismiss</option>
+                    <option value="resolve">Resolve</option>
+                </select>
+                <button type="submit" class="btn btn-outline-secondary btn-sm" onclick="return confirm('Apply bulk action?')">Apply</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 40px;"><input type="checkbox" class="form-check-input" id="selectAllReports"></th>
+                            <th>Reporter</th>
+                            <th>Target</th>
+                            <th>Type</th>
+                            <th>Reason</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (reports.length > 0) { %>
+                            <% reports.forEach(r => { %>
+                                <tr>
+                                    <td><input type="checkbox" class="form-check-input report-checkbox" name="reportIds" value="<%= r._id %>"></td>
+                                    <td>
+                                        <div><%= r.reporter ? r.reporter.name : 'Unknown' %></div>
+                                        <small class="text-muted"><%= r.reporter ? r.reporter.email : '' %></small>
+                                    </td>
+                                    <td>
+                                        <% if (r.targetId) { %>
+                                            <!-- Try to show useful info based on dynamic type -->
+                                            <strong><%= r.targetId.name || r.targetId.title || 'Item' %></strong>
+                                            <% if(r.targetType === 'Review') { %>
+                                                <p class="small text-muted mb-0 text-break"><%= r.targetId.comment ? r.targetId.comment.substring(0,50) : 'No content' %>...</p>
+                                            <% } %>
+                                        <% } else { %>
+                                            <span class="text-danger">Item Deleted</span>
+                                        <% } %>
+                                    </td>
+                                    <td><span class="badge bg-secondary"><%= r.targetType %></span></td>
+                                    <td><%= r.reason %></td>
+                                    <td><%= new Date(r.createdAt).toLocaleDateString() %></td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button type="submit" formaction="/admin/reports/<%= r._id %>/dismiss" class="btn btn-sm btn-outline-secondary" title="Dismiss" onclick="return confirm('Dismiss this report?')">
+                                                Dismiss
+                                            </button>
+                                            <button type="submit" formaction="/admin/reports/<%= r._id %>/delete" class="btn btn-sm btn-outline-success ms-1" title="Mark Resolved" onclick="return confirm('Mark as resolved?')">
+                                                Resolve
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="7" class="text-center">No pending reports found.</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('selectAllReports').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.report-checkbox');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+    });
+</script>

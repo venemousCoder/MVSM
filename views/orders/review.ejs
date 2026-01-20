@@ -1,0 +1,121 @@
+<div class="container py-4">
+    <div class="mb-4">
+        <a href="javascript:history.back()" class="text-decoration-none"><i class="fas fa-arrow-left me-2"></i> Back</a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0">Rate & Review Order #<%= order._id.toString().slice(-6).toUpperCase() %></h4>
+                </div>
+                <div class="card-body">
+                    <form action="/orders/<%= order._id %>/review" method="POST">
+                        
+                        <p class="text-muted mb-4">Please share your experience with the items and services in this order.</p>
+
+                        <!-- Items Review -->
+                        <% 
+                           // Deduplicate items to avoid reviewing same product twice if quantity > 1
+                           const productsSeen = new Set();
+                           const servicesSeen = new Set();
+                        %>
+
+                        <% order.items.forEach(function(item, index) { %>
+                            
+                            <% if (item.product && !productsSeen.has(item.product._id.toString())) { 
+                                productsSeen.add(item.product._id.toString());
+                            %>
+                                <div class="mb-4 border-bottom pb-4">
+                                    <h5 class="mb-3">
+                                        <i class="fas fa-box text-secondary me-2"></i> <%= item.name %>
+                                    </h5>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Rating</label>
+                                            <select name="product_reviews[<%= item.product._id %>][rating]" class="form-select" required>
+                                                <option value="" disabled selected>Select stars...</option>
+                                                <option value="5">⭐⭐⭐⭐⭐ (Excellent)</option>
+                                                <option value="4">⭐⭐⭐⭐ (Good)</option>
+                                                <option value="3">⭐⭐⭐ (Average)</option>
+                                                <option value="2">⭐⭐ (Poor)</option>
+                                                <option value="1">⭐ (Terrible)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label class="form-label">Comment</label>
+                                            <textarea name="product_reviews[<%= item.product._id %>][comment]" class="form-control" rows="2" placeholder="What did you like or dislike?"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } %>
+
+                            <% if (item.service && !servicesSeen.has(item.service._id.toString())) { 
+                                servicesSeen.add(item.service._id.toString());
+                            %>
+                                <div class="mb-4 border-bottom pb-4">
+                                    <h5 class="mb-3">
+                                        <i class="fas fa-tools text-secondary me-2"></i> <%= item.name %>
+                                    </h5>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Service Rating</label>
+                                            <select name="service_reviews[<%= item.service._id %>][rating]" class="form-select" required>
+                                                <option value="" disabled selected>Select stars...</option>
+                                                <option value="5">⭐⭐⭐⭐⭐ (Excellent)</option>
+                                                <option value="4">⭐⭐⭐⭐ (Good)</option>
+                                                <option value="3">⭐⭐⭐ (Average)</option>
+                                                <option value="2">⭐⭐ (Poor)</option>
+                                                <option value="1">⭐ (Terrible)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label class="form-label">Comment</label>
+                                            <textarea name="service_reviews[<%= item.service._id %>][comment]" class="form-control" rows="2" placeholder="How was the service?"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } %>
+
+                        <% }); %>
+
+                        <!-- Operator Review -->
+                        <% if (order.operator) { %>
+                            <div class="mb-4 bg-light p-3 rounded">
+                                <h5 class="mb-3 text-primary">
+                                    <i class="fas fa-user-tie me-2"></i> Operator Rating
+                                </h5>
+                                <p class="small text-muted mb-3">
+                                    Served by: <strong><%= order.operator.user ? order.operator.user.name : 'Staff Member' %></strong>
+                                    <br>Please rate the staff member specifically (distinct from the service itself).
+                                </p>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Staff Rating</label>
+                                        <select name="operator_rating" class="form-select" required>
+                                            <option value="" disabled selected>Select stars...</option>
+                                            <option value="5">⭐⭐⭐⭐⭐ (Excellent)</option>
+                                            <option value="4">⭐⭐⭐⭐ (Good)</option>
+                                            <option value="3">⭐⭐⭐ (Average)</option>
+                                            <option value="2">⭐⭐ (Poor)</option>
+                                            <option value="1">⭐ (Terrible)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label class="form-label">Comment</label>
+                                        <textarea name="operator_comment" class="form-control" rows="2" placeholder="Was the staff professional and helpful?"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Submit Reviews</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

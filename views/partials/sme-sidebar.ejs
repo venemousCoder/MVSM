@@ -1,0 +1,54 @@
+<div id="smeSidebar" class="d-flex flex-column flex-shrink-0 p-3 bg-light sme-sidebar">
+    <a href="/sme/dashboard" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
+      <span class="fs-4">SME Dashboard</span>
+    </a>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+      <li class="nav-item">
+        <a href="/sme/dashboard" class="nav-link <%= typeof title != 'undefined' && title === 'SME Dashboard' ? 'active' : 'link-dark' %>" aria-current="page">
+          Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="/sme/businesses" class="nav-link <%= typeof title != 'undefined' && title === 'My Businesses' ? 'active' : 'link-dark' %>">
+          Businesses
+        </a>
+      </li>
+      <li>
+        <a href="/sme/orders" class="nav-link <%= typeof title != 'undefined' && title === 'Orders' ? 'active' : 'link-dark' %>">
+          Orders
+        </a>
+      </li>
+      <li>
+        <a href="/sme/reviews" class="nav-link <%= typeof title != 'undefined' && title === 'Reviews' ? 'active' : 'link-dark' %>">
+          Reviews
+        </a>
+      </li>
+      <li>
+        <a href="/sme/chats" class="nav-link <%= typeof title != 'undefined' && (title === 'Chats Overview' || title === 'Chat Logs') ? 'active' : 'link-dark' %>">
+          Chats
+        </a>
+      </li>
+      <li>
+        <a href="/sme/analytics" class="nav-link <%= typeof title != 'undefined' && title === 'Analytics' ? 'active' : 'link-dark' %>">
+          Analytics
+        </a>
+      </li>
+      <li>
+        <a href="/sme/settings" class="nav-link <%= typeof title != 'undefined' && title === 'Account Settings' ? 'active' : 'link-dark' %>">
+          Settings
+        </a>
+      </li>
+    </ul>
+    <hr>
+    <div class="dropdown dropup">
+      <a href="#" class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
+        <strong><%= user.name %></strong>
+      </a>
+      <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
+        <li><a class="dropdown-item" href="#">Profile</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="/users/logout">Sign out</a></li>
+      </ul>
+    </div>
+  </div>

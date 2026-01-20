@@ -1,0 +1,232 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Analytics: <%= business.name %></h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary active" onclick="updateCharts('daily', this)">Daily</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="updateCharts('weekly', this)">Weekly</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="updateCharts('monthly', this)">Monthly</button>
+        </div>
+    </div>
+</div>
+
+<!-- Key Metrics -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-header">Current Month Revenue</div>
+            <div class="card-body">
+                <h3 class="card-title" id="currentMonthRev">$0.00</h3>
+                <p class="card-text" id="growthText">Loading...</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-header">Total Orders (Period)</div>
+            <div class="card-body">
+                <h3 class="card-title" id="totalOrders">0</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 1 -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">Revenue Trend</div>
+            <div class="card-body">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Top Products/Services</div>
+            <div class="card-body">
+                <canvas id="topItemsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 2 -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Operator Performance</div>
+            <div class="card-body">
+                <canvas id="operatorChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Customer Acquisition (Orders)</div>
+            <div class="card-body">
+                <canvas id="acquisitionChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const businessId = '<%= business._id %>';
+    let revenueChartInstance = null;
+    let topItemsChartInstance = null;
+    let operatorChartInstance = null;
+    let acquisitionChartInstance = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateCharts('daily');
+    });
+
+    async function updateCharts(period, btn) {
+        if(btn) {
+            document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        try {
+            const response = await fetch(`/sme/business/${businessId}/analytics/data?period=${period}`);
+            const data = await response.json();
+
+            renderRevenueChart(data.revenueData);
+            renderTopItemsChart(data.topItems);
+            renderOperatorChart(data.operatorPerformance);
+            renderAcquisitionChart(data.revenueData); // Using revenue data count for acquisition
+            updateMetrics(data);
+
+        } catch (error) {
+            console.error('Error fetching analytics:', error);
+        }
+    }
+
+    function updateMetrics(data) {
+        // Current Month Revenue
+        document.getElementById('currentMonthRev').innerText = `$${data.comparative.currentMonth.toFixed(2)}`;
+        
+        // Growth Calculation
+        const current = data.comparative.currentMonth;
+        const last = data.comparative.lastMonth;
+        let growth = 0;
+        if (last > 0) {
+            growth = ((current - last) / last) * 100;
+            document.getElementById('growthText').innerText = `${growth > 0 ? '+' : ''}${growth.toFixed(1)}% vs Last Month`;
+        } else if (current > 0) {
+             document.getElementById('growthText').innerText = `+100% vs Last Month`;
+        } else {
+             document.getElementById('growthText').innerText = `No change`;
+        }
+
+        // Total Orders in selected period
+        const totalOrders = data.revenueData.reduce((acc, curr) => acc + curr.count, 0);
+        document.getElementById('totalOrders').innerText = totalOrders;
+    }
+
+    function renderRevenueChart(data) {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const labels = data.map(d => d._id);
+        const values = data.map(d => d.total);
+
+        if (revenueChartInstance) revenueChartInstance.destroy();
+
+        revenueChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Revenue ($)',
+                    data: values,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1,
+                    fill: false
+                }]
+            },
+            options: { responsive: true }
+        });
+    }
+
+    function renderTopItemsChart(data) {
+        const ctx = document.getElementById('topItemsChart').getContext('2d');
+        const labels = data.map(d => d._id);
+        const values = data.map(d => d.quantity);
+
+        if (topItemsChartInstance) topItemsChartInstance.destroy();
+
+        topItemsChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Units Sold',
+                    data: values,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: { indexAxis: 'y', responsive: true }
+        });
+    }
+
+    function renderOperatorChart(data) {
+        const ctx = document.getElementById('operatorChart').getContext('2d');
+        
+        // Handle empty data
+        if (!data || data.length === 0) {
+            // Can render a "No Data" text or empty chart
+            if (operatorChartInstance) operatorChartInstance.destroy();
+            return;
+        }
+
+        const labels = data.map(d => d.name);
+        const values = data.map(d => d.count);
+
+        if (operatorChartInstance) operatorChartInstance.destroy();
+
+        operatorChartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Services Completed',
+                    data: values,
+                    backgroundColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(54, 162, 235)',
+                        'rgb(255, 205, 86)',
+                        'rgb(75, 192, 192)',
+                        'rgb(153, 102, 255)'
+                    ],
+                    hoverOffset: 4
+                }]
+            },
+            options: { responsive: true }
+        });
+    }
+
+    function renderAcquisitionChart(data) {
+        const ctx = document.getElementById('acquisitionChart').getContext('2d');
+        const labels = data.map(d => d._id);
+        const values = data.map(d => d.count);
+
+        if (acquisitionChartInstance) acquisitionChartInstance.destroy();
+
+        acquisitionChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Orders',
+                    data: values,
+                    backgroundColor: 'rgba(153, 102, 255, 0.5)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: { responsive: true }
+        });
+    }
+</script>

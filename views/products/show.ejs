@@ -1,0 +1,193 @@
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/shop/<%= product.business._id %>"><%= product.business.name %></a></li>
+            <li class="breadcrumb-item active" aria-current="page"><%= product.name %></li>
+        </ol>
+    </nav>
+
+    <div class="row mb-5">
+        <!-- Product Images -->
+        <div class="col-md-6 mb-4 mb-md-0">
+            <div class="card border-0 shadow-sm">
+                <% if (product.images && product.images.length > 0) { %>
+                    <img src="<%= product.images[0] %>" class="card-img-top rounded" alt="<%= product.name %>" id="mainImage">
+                    <% if (product.images.length > 1) { %>
+                        <div class="d-flex mt-2 gap-2 overflow-auto">
+                            <% product.images.forEach((img, index) => { %>
+                                <img src="<%= img %>" class="rounded cursor-pointer border" style="width: 80px; height: 80px; object-fit: cover;" onclick="document.getElementById('mainImage').src = this.src" alt="Thumbnail">
+                            <% }) %>
+                        </div>
+                    <% } %>
+                <% } else { %>
+                    <img src="https://source.unsplash.com/600x600/?product,<%= product.category %>" class="card-img-top rounded" alt="<%= product.name %>">
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Product Details -->
+        <div class="col-md-6">
+            <h1 class="display-6 fw-bold mb-2"><%= product.name %></h1>
+            
+            <div class="mb-3 d-flex align-items-center">
+                <div class="text-warning me-2">
+                    <% const stars = Math.round(avgRating); %>
+                    <% for(let i=0; i<5; i++) { %>
+                        <i class="<%= i < stars ? 'fas' : 'far' %> fa-star"></i>
+                    <% } %>
+                </div>
+                <span class="text-muted text-decoration-underline"><%= reviews.length %> reviews</span>
+            </div>
+
+            <h2 class="text-primary fw-bold mb-3">$<%= product.price.toFixed(2) %></h2>
+            
+            <div class="mb-4">
+                <% if(product.stock > 0) { %>
+                    <span class="badge bg-success">In Stock (<%= product.stock %>)</span>
+                <% } else { %>
+                    <span class="badge bg-danger">Out of Stock</span>
+                <% } %>
+                <span class="badge bg-light text-dark border ms-2"><%= product.category %></span>
+                <% if(product.tags && product.tags.length > 0) { %>
+                    <% product.tags.forEach(tag => { %>
+                        <span class="badge bg-light text-dark border ms-1"><%= tag %></span>
+                    <% }) %>
+                <% } %>
+            </div>
+
+            <p class="lead text-muted fs-6 mb-4"><%= product.description %></p>
+
+            <div class="card bg-light border-0 mb-4">
+                <div class="card-body">
+                    <% if(user) { %>
+                        <% if(product.stock > 0) { %>
+                            <form action="/cart/add" method="POST" class="row g-3">
+                                <input type="hidden" name="itemId" value="<%= product._id %>">
+                                <input type="hidden" name="itemType" value="product">
+                                
+                                <div class="col-auto">
+                                    <label for="quantity" class="visually-hidden">Quantity</label>
+                                    <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" max="<%= product.stock %>" style="width: 80px;">
+                                </div>
+                                <div class="col">
+                                    <button type="submit" class="btn btn-primary w-100 fw-bold">Add to Cart</button>
+                                </div>
+                            </form>
+                        <% } else { %>
+                            <button class="btn btn-secondary w-100" disabled>Currently Unavailable</button>
+                        <% } %>
+                    <% } else { %>
+                        <a href="/users/login" class="btn btn-primary w-100">Login to Buy</a>
+                    <% } %>
+                </div>
+                <% if (user) { %>
+                    <div class="card-footer bg-white border-top-0 pt-0 pb-3">
+                        <form action="/reports/submit" method="POST">
+                            <input type="hidden" name="targetType" value="Product">
+                            <input type="hidden" name="targetId" value="<%= product._id %>">
+                            <button type="submit" class="btn btn-sm btn-link text-danger w-100 text-decoration-none" onclick="return confirm('Report this product?')">
+                                <i class="fas fa-exclamation-circle me-1"></i> Report Product
+                            </button>
+                        </form>
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="d-flex align-items-center p-3 border rounded">
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                    <i class="fas fa-store text-secondary"></i>
+                </div>
+                <div>
+                    <small class="text-muted d-block">Sold by</small>
+                    <a href="/shop/<%= product.business._id %>" class="fw-bold text-decoration-none text-dark"><%= product.business.name %></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="border-bottom pb-2 mb-4">Customer Reviews</h3>
+            <% if(reviews.length > 0) { %>
+                <div class="row">
+                    <% reviews.forEach(review => { %>
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 shadow-sm border-0">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <h6 class="fw-bold mb-0"><%= review.user ? review.user.name : 'Anonymous' %></h6>
+                                        <div class="text-warning small">
+                                            <% for(let i=0; i<5; i++) { %>
+                                                <i class="<%= i < review.rating ? 'fas' : 'far' %> fa-star"></i>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <p class="text-muted small mb-0"><%= review.comment %></p>
+                                        <% if (user && review.user && user._id.toString() === review.user._id.toString() && review.order) { %>
+                                            <a href="/orders/<%= review.order._id %>/review" class="btn btn-link btn-sm p-0 text-decoration-none" style="font-size: 0.75rem;">
+                                                <i class="fas fa-edit me-1"></i>Edit
+                                            </a>
+                                        <% } %>
+                                        <% if (user) { %>
+                                            <form action="/reports/submit" method="POST" class="d-inline ms-2">
+                                                <input type="hidden" name="targetType" value="Review">
+                                                <input type="hidden" name="targetId" value="<%= review._id %>">
+                                                <button type="submit" class="btn btn-link btn-sm p-0 text-muted text-decoration-none" style="font-size: 0.75rem;" onclick="return confirm('Report this review as inappropriate?')">
+                                                    <i class="fas fa-flag"></i> Report
+                                                </button>
+                                            </form>
+                                        <% } %>
+                                    </div>
+                                    <% if(review.reply) { %>
+                                        <div class="mt-2 ps-3 border-start border-3 border-primary bg-light p-2 rounded">
+                                            <small class="fw-bold d-block">Store Response:</small>
+                                            <small class="text-muted"><%= review.reply %></small>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } else { %>
+                <p class="text-muted">No reviews yet for this product.</p>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    <% if(relatedProducts && relatedProducts.length > 0) { %>
+        <div class="row">
+            <div class="col-12">
+                <h3 class="border-bottom pb-2 mb-4">More from <%= product.business.name %></h3>
+                <div class="row row-cols-1 row-cols-md-4 g-4">
+                    <% relatedProducts.forEach(relProduct => { %>
+                        <div class="col">
+                            <div class="card h-100 shadow-sm border-0 product-card">
+                                <img src="<%= (relProduct.images && relProduct.images.length > 0) ? relProduct.images[0] : 'https://source.unsplash.com/400x300/?product,' + relProduct.category %>" class="card-img-top" alt="<%= relProduct.name %>" style="height: 150px; object-fit: cover;">
+                                <div class="card-body">
+                                    <h6 class="card-title text-truncate"><a href="/products/<%= relProduct._id %>" class="text-decoration-none text-dark"><%= relProduct.name %></a></h6>
+                                    <p class="text-primary fw-bold mb-0">$<%= relProduct.price.toFixed(2) %></p>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+        </div>
+    <% } %>
+</div>
+
+<style>
+.cursor-pointer {
+    cursor: pointer;
+}
+.product-card:hover {
+    transform: translateY(-5px);
+    transition: transform 0.2s;
+}
+</style>

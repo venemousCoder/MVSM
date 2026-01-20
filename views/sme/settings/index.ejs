@@ -1,0 +1,110 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Account Settings</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="list-group" id="settings-list-tab" role="tablist">
+            <a class="list-group-item list-group-item-action active" id="list-profile-list" data-bs-toggle="list" href="#list-profile" role="tab">Profile Information</a>
+            <a class="list-group-item list-group-item-action" id="list-password-list" data-bs-toggle="list" href="#list-password" role="tab">Change Password</a>
+            <a class="list-group-item list-group-item-action" id="list-notifications-list" data-bs-toggle="list" href="#list-notifications" role="tab">Notifications</a>
+            <a class="list-group-item list-group-item-action" id="list-business-list" data-bs-toggle="list" href="#list-business" role="tab">Business Settings</a>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div class="tab-content" id="nav-tabContent">
+            <!-- Profile Tab -->
+            <div class="tab-pane fade show active" id="list-profile" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">Profile Information</div>
+                    <div class="card-body">
+                        <form action="/sme/settings/profile" method="POST">
+                            <div class="mb-3">
+                                <label class="form-label">Name</label>
+                                <input type="text" name="name" class="form-control" value="<%= user.name %>" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control" value="<%= user.email %>" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Phone</label>
+                                <input type="text" name="phone" class="form-control" value="<%= user.phone || '' %>">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Password Tab -->
+            <div class="tab-pane fade" id="list-password" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">Change Password</div>
+                    <div class="card-body">
+                        <form action="/sme/settings/password" method="POST">
+                            <div class="mb-3">
+                                <label class="form-label">Current Password</label>
+                                <input type="password" name="currentPassword" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">New Password</label>
+                                <input type="password" name="newPassword" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Confirm New Password</label>
+                                <input type="password" name="confirmPassword" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Change Password</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Tab -->
+            <div class="tab-pane fade" id="list-notifications" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">Notification Preferences</div>
+                    <div class="card-body">
+                        <form action="/sme/settings/notifications" method="POST">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" name="email" id="notifyEmail" <%= user.notifications && user.notifications.email ? 'checked' : '' %>>
+                                <label class="form-check-label" for="notifyEmail">Email Notifications</label>
+                                <div class="form-text">Receive updates about orders and account activity via email.</div>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" name="sms" id="notifySms" <%= user.notifications && user.notifications.sms ? 'checked' : '' %>>
+                                <label class="form-check-label" for="notifySms">SMS Notifications</label>
+                                <div class="form-text">Receive critical alerts via SMS (charges may apply).</div>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" name="push" id="notifyPush" <%= user.notifications && user.notifications.push ? 'checked' : '' %>>
+                                <label class="form-check-label" for="notifyPush">Push Notifications</label>
+                                <div class="form-text">Receive real-time updates in the browser/app.</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Preferences</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Business Settings Link Tab -->
+            <div class="tab-pane fade" id="list-business" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">Business Settings</div>
+                    <div class="card-body">
+                        <p>Manage settings for specific businesses:</p>
+                        <div class="list-group">
+                            <% businesses.forEach(function(b) { %>
+                                <a href="/sme/business/<%= b._id %>/settings" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                    <%= b.name %>
+                                    <span class="badge bg-secondary rounded-pill">Manage</span>
+                                </a>
+                            <% }); %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,17 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><%= title %></h1>
+</div>
+
+<div class="row">
+    <% businesses.forEach(function(business) { %>
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title"><%= business.name %></h5>
+                    <p class="card-text text-capitalize"><%= business.type %> - <%= business.category %></p>
+                    <a href="/sme/business/<%= business._id %>/<%= targetBase %>" class="btn btn-primary">Select</a>
+                </div>
+            </div>
+        </div>
+    <% }); %>
+</div>

@@ -1,0 +1,155 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard</h1>
+</div>
+
+<!-- Chat Requests Notification Area -->
+<% if (pendingChats && pendingChats.length > 0) { %>
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card shadow-sm border-warning h-100">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="m-0 font-weight-bold"><i class="fas fa-comment-dots mr-2"></i>Pending Chat Requests</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <% pendingChats.forEach(function(chat) { %>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0"><%= chat.customer.name %></h6>
+                                <small class="text-muted">Order #<%= chat.order.toString().slice(-4).toUpperCase() %></small>
+                            </div>
+                            <a href="/orders/<%= chat.order %>/chat" class="btn btn-sm btn-primary">
+                                Respond <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<% } %>
+
+<div class="row">
+    <!-- Operator Status Card -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-left-primary h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Status</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            <%= operator.status.toUpperCase() %>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business Info -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-left-success h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Employer</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            <%= operator.business.name %>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-building fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tasks/Orders Count (Mock) -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-left-info h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Queue</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800"><%= queueCount %></div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Assigned Services -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Assigned Services</h6>
+            </div>
+            <div class="card-body">
+                <% if (operator.services && operator.services.length > 0) { %>
+                    <ul class="list-group">
+                        <% operator.services.forEach(function(service) { %>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <%= service.name %>
+                                <span class="badge bg-primary rounded-pill"><%= service.duration || 'N/A' %></span>
+                            </li>
+                        <% }); %>
+                    </ul>
+                <% } else { %>
+                    <p class="text-muted">No specific services assigned.</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Business Activity -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Recent Business Activity</h6>
+            </div>
+            <div class="card-body">
+                <% if (recentActivities && recentActivities.length > 0) { %>
+                    <ul class="list-group list-group-flush">
+                        <% recentActivities.forEach(function(activity) { %>
+                            <li class="list-group-item">
+                                <small class="text-muted"><%= new Date(activity.createdAt).toLocaleDateString() %></small>
+                                <p class="mb-0"><%= activity.details %></p>
+                            </li>
+                        <% }); %>
+                    </ul>
+                <% } else { %>
+                    <p class="text-muted">No recent activity.</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+    const operatorId = '<%= operator._id %>';
+    
+    // Join operator specific room
+    socket.emit('join_room', 'operator_' + operatorId);
+    
+    socket.on('new_chat_request', function(data) {
+        // Simple notification
+        if(confirm('New Chat Request from ' + data.customerName + '. Reload to see?')) {
+            location.reload();
+        }
+    });
+</script>

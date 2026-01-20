@@ -1,0 +1,83 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Manage Users</h1>
+</div>
+
+<div class="mb-4">
+    <form action="/admin/users" method="GET" class="d-flex">
+        <input class="form-control me-2" type="search" name="search" placeholder="Search by name" value="<%= typeof search !== 'undefined' ? search : '' %>" aria-label="Search">
+        <button class="btn btn-outline-primary" type="submit">Search</button>
+        <% if (typeof search !== 'undefined' && search) { %>
+            <a href="/admin/users" class="btn btn-outline-secondary ms-2">Clear</a>
+        <% } %>
+    </form>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form action="/admin/users/bulk" method="POST">
+            <div class="mb-3 d-flex align-items-center">
+                <select name="action" class="form-select w-auto me-2" required>
+                    <option value="" selected disabled>Bulk Actions</option>
+                    <option value="activate">Activate</option>
+                    <option value="ban">Ban</option>
+                </select>
+                <button type="submit" class="btn btn-outline-secondary btn-sm" onclick="return confirm('Apply bulk action?')">Apply</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 40px;"><input type="checkbox" class="form-check-input" id="selectAllUsers"></th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (users.length > 0) { %>
+                            <% users.forEach(u => { %>
+                                <tr>
+                                    <td><input type="checkbox" class="form-check-input user-checkbox" name="userIds" value="<%= u._id %>"></td>
+                                    <td><%= u.name %></td>
+                                    <td><%= u.email %></td>
+                                    <td><span class="badge bg-secondary text-capitalize"><%= u.role.replace('_', ' ') %></span></td>
+                                    <td>
+                                        <% if(u.isActive) { %>
+                                            <span class="badge bg-success">Active</span>
+                                        <% } else { %>
+                                            <span class="badge bg-danger">Banned</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <% if (u.role !== 'admin') { %>
+                                            <% if(u.isActive) { %>
+                                                <button type="submit" formaction="/admin/users/<%= u._id %>/status" class="btn btn-sm btn-outline-danger" onclick="return confirm('Ban this user?')">Ban</button>
+                                            <% } else { %>
+                                                <button type="submit" formaction="/admin/users/<%= u._id %>/status" class="btn btn-sm btn-outline-success">Activate</button>
+                                            <% } %>
+                                        <% } else { %>
+                                            <span class="text-muted small">Admin</span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="6" class="text-center">No users found.</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('selectAllUsers').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.user-checkbox');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+    });
+</script>

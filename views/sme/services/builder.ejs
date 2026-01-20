@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Script Builder - <%= service.name %></title>
+    <!-- Bootstrap CSS (for basic utility classes only) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Builder CSS -->
+    <link rel="stylesheet" href="/css/builder.css">
+</head>
+<body data-service-id="<%= service._id %>" data-business-id="<%= business._id %>">
+
+    <!-- TOP TOOLBAR -->
+    <div class="builder-toolbar">
+        <div class="toolbar-left">
+            <a href="/sme/business/<%= business._id %>/services" class="btn-back"><i class="fas fa-arrow-left"></i> Exit</a>
+            <span class="service-name"><%= service.name %></span>
+        </div>
+        <div class="toolbar-center">
+            <div class="tool-group">
+                <button class="btn btn-sm btn-primary" id="btn-add-question"><i class="fas fa-plus"></i> Add Question</button>
+            </div>
+            <div class="tool-group">
+                <button class="tool-btn active" id="tool-select" title="Select (V)"><i class="fas fa-mouse-pointer"></i></button>
+                <button class="tool-btn" id="tool-hand" title="Pan (H)"><i class="fas fa-hand-paper"></i></button>
+            </div>
+            <div class="tool-group">
+                <button class="tool-btn" id="action-undo" title="Undo (Ctrl+Z)"><i class="fas fa-undo"></i></button>
+                <button class="tool-btn" id="action-redo" title="Redo (Ctrl+Y)"><i class="fas fa-redo"></i></button>
+            </div>
+            <div class="tool-group">
+                 <button class="tool-btn" id="view-zoom-out"><i class="fas fa-minus"></i></button>
+                 <span class="zoom-level" id="zoom-level">100%</span>
+                 <button class="tool-btn" id="view-zoom-in"><i class="fas fa-plus"></i></button>
+            </div>
+        </div>
+        <div class="toolbar-right">
+            <button class="btn btn-outline-light btn-sm me-2" id="btn-run-test"><i class="fas fa-play"></i> Preview</button>
+            <button class="btn btn-primary btn-sm" id="btn-save"><i class="fas fa-save"></i> Save Flow</button>
+        </div>
+    </div>
+
+    <!-- MAIN WORKSPACE -->
+    <div class="builder-workspace">
+        
+        <!-- LEFT PANEL: NODE LIBRARY -->
+        <div class="panel-left">
+            <div class="panel-header">
+                <h6>Node Library</h6>
+            </div>
+            <div class="node-category">
+                <div class="category-title">Components</div>
+                <div class="draggable-node" draggable="true" data-type="start">
+                    <i class="fas fa-play-circle text-success"></i> Start Flow
+                </div>
+                <div class="draggable-node" draggable="true" data-type="question">
+                    <i class="fas fa-question-circle text-purple"></i> Question
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER: CANVAS -->
+        <div class="canvas-container" id="canvas-container">
+            <div class="canvas-layer" id="canvas-layer">
+                <!-- SVG Layer for connections -->
+                <svg id="connections-layer"></svg>
+                <!-- Nodes will be injected here -->
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: INSPECTOR -->
+        <div class="panel-right" id="inspector-panel">
+            <div class="panel-header">
+                <h6>Inspector</h6>
+            </div>
+            <div class="inspector-content" id="inspector-content">
+                <p class="text-muted text-center mt-5">Select a node to edit properties.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="/js/builder.js"></script>
+    <script>
+        // Initialize with existing script if any
+        const savedScript = <%- JSON.stringify(service.script || {}) %>;
+        if (savedScript && Object.keys(savedScript).length > 0) {
+            // TODO: Load script
+            console.log("Loaded script:", savedScript);
+        }
+    </script>
+</body>
+</html>

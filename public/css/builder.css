@@ -1,0 +1,314 @@
+:root {
+    --bg-dark: #1e1e1e;
+    --bg-panel: #252526;
+    --bg-canvas: #181818;
+    --border-color: #3e3e42;
+    --text-primary: #cccccc;
+    --text-secondary: #858585;
+    --accent: #007fd4;
+    --node-bg: #333333;
+    --node-header-bg: #2d2d2d;
+    --grid-color: #2a2a2a;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+}
+
+.text-purple { color: #6f42c1; }
+
+/* TOOLBAR */
+.builder-toolbar {
+    height: 50px;
+    background-color: var(--bg-panel);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
+    z-index: 100;
+    position: relative;
+}
+
+.toolbar-center {
+    display: flex;
+    gap: 20px;
+}
+
+.tool-group {
+    background: var(--bg-dark);
+    padding: 3px;
+    border-radius: 4px;
+    display: flex;
+    gap: 2px;
+}
+
+.tool-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.tool-btn:hover {
+    background-color: var(--border-color);
+}
+
+.tool-btn.active {
+    background-color: var(--accent);
+    color: white;
+}
+
+.zoom-level {
+    font-size: 12px;
+    padding: 5px;
+    min-width: 40px;
+    text-align: center;
+}
+
+/* WORKSPACE LAYOUT */
+.builder-workspace {
+    display: flex;
+    height: calc(100% - 50px);
+    width: 100%;
+}
+
+.panel-left, .panel-right {
+    width: 250px;
+    background-color: var(--bg-panel);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+}
+
+.panel-right {
+    border-right: none;
+    border-left: 1px solid var(--border-color);
+}
+
+.panel-header {
+    padding: 10px;
+    background-color: var(--bg-dark);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.panel-header h6 {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+/* CANVAS */
+.canvas-container {
+    flex-grow: 1;
+    background-color: var(--bg-canvas);
+    position: relative;
+    overflow: hidden;
+    cursor: grab;
+    
+    /* Grid Pattern */
+    background-image: linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+.canvas-container:active {
+    cursor: grabbing;
+}
+
+.canvas-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform-origin: 0 0;
+    /* Will be transformed by JS */
+}
+
+#connections-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Let clicks pass through to nodes */
+    overflow: visible;
+}
+
+/* NODES */
+.node-category {
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.category-title {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.draggable-node {
+    background-color: var(--node-bg);
+    padding: 8px 12px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: grab;
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.draggable-node:hover {
+    border-color: var(--text-secondary);
+}
+
+/* CANVAS NODES */
+.flow-node {
+    position: absolute;
+    width: 200px;
+    background-color: var(--node-bg);
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+}
+
+.flow-node.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent);
+}
+
+.node-header {
+    padding: 8px 12px;
+    background-color: var(--node-header-bg);
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 6px 6px 0 0;
+    font-weight: 600;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: move; /* Drag handle */
+}
+
+/* Category Colors */
+.flow-node[data-type="start"] .node-header { border-top: 3px solid #28a745; }
+.flow-node[data-type="end"] .node-header { border-top: 3px solid #dc3545; }
+.flow-node[data-type="condition"] .node-header { border-top: 3px solid #ffc107; }
+.flow-node[data-type="message"] .node-header { border-top: 3px solid #0d6efd; }
+.flow-node[data-type="input"] .node-header { border-top: 3px solid #0dcaf0; }
+.flow-node[data-type="question"] .node-header { border-top: 3px solid #6f42c1; }
+.flow-node[data-type="start"] .node-header { border-top: 3px solid #28a745; }
+
+.node-body {
+    padding: 10px;
+    font-size: 12px;
+}
+
+/* PORTS */
+.port {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.port.input {
+    left: -8px; /* Half width outside */
+}
+
+.port.output {
+    right: -8px;
+}
+
+.port-handle {
+    width: 12px;
+    height: 12px;
+    background-color: #fff;
+    border: 2px solid #666;
+    border-radius: 50%;
+    cursor: crosshair;
+    transition: all 0.2s;
+}
+
+.port-handle:hover {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    transform: scale(1.2);
+}
+
+.list-group-item {
+    overflow: visible !important; /* Allow ports to stick out */
+}
+
+/* INSPECTOR */
+.inspector-content {
+    padding: 15px;
+    font-size: 13px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text-secondary);
+}
+
+.form-control {
+    width: 100%;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 6px;
+    border-radius: 3px;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+/* SVG CONNECTIONS */
+.connection-path {
+    fill: none;
+    stroke: #666;
+    stroke-width: 2px;
+    pointer-events: stroke; /* Allow clicking on the line */
+}
+
+.connection-path:hover {
+    stroke: var(--accent);
+    stroke-width: 3px;
+    cursor: pointer;
+}
+
+.connection-path.selected {
+    stroke: var(--accent);
+    stroke-width: 3px;
+}

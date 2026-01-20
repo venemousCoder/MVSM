@@ -1,0 +1,166 @@
+<div class="container py-5" style="max-width: 600px;">
+    
+    <% if (order.status === 'pending') { %>
+        <!-- IN QUEUE VIEW -->
+        <div class="card shadow border-0 overflow-hidden">
+            <div class="card-header bg-warning text-dark p-4 text-center">
+                <h4 class="mb-1"><i class="fas fa-hourglass-half me-2"></i>WAITING IN QUEUE</h4>
+                <p class="mb-0 small">
+                    Position: <strong>#<%= queuePosition %></strong> • Est. wait: <strong><%= estWait %> min</strong>
+                </p>
+            </div>
+
+            <div class="card-body p-0">
+                <!-- Queue List Visualization -->
+                <div class="p-4">
+                    <h6 class="text-muted text-uppercase small fw-bold mb-3">Queue Status:</h6>
+                    <div class="list-group list-group-flush border rounded-3 overflow-hidden mb-4">
+                        <% queueList.forEach((item, index) => { %>
+                            <div class="list-group-item p-3 <%= item.isMe ? 'bg-warning bg-opacity-10 border-start border-4 border-warning' : '' %>">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <div>
+                                        <span class="fw-bold <%= item.isMe ? 'text-dark' : 'text-muted' %>">
+                                            <%= index + 1 %>. <%= item.name %>
+                                        </span>
+                                        <span class="mx-2 text-muted">•</span>
+                                        <span class="small text-secondary"><%= item.service %></span>
+                                    </div>
+                                    <% if(item.isMe) { %>
+                                        <span class="badge bg-warning text-dark">YOU</span>
+                                    <% } %>
+                                </div>
+                                <div class="small text-muted ps-3 border-start">
+                                    <i class="far fa-clock me-1"></i> <%= item.timeText %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <a href="https://maps.google.com/?q=<%= order.business.address %>" target="_blank" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-map-marker-alt me-1"></i> View on Map
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <button class="btn btn-outline-secondary w-100" onclick="alert('Feature coming soon')">
+                                    <i class="fas fa-pencil-alt me-1"></i> Modify
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <% if (order.operator) { %>
+                        <form action="/orders/<%= order._id %>/chat/request" method="POST" class="mb-2">
+                            <button type="submit" class="btn btn-outline-info w-100">
+                                 <i class="fas fa-comment me-2"></i>Message Operator
+                            </button>
+                        </form>
+                        <% } %>
+
+                        <form action="/orders/<%= order._id %>/cancel" method="POST" onsubmit="return confirm('Cancel this request?');">
+                            <button type="submit" class="btn btn-outline-danger w-100">
+                                <i class="fas fa-times me-1"></i> Cancel Request
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <% } else if (order.status === 'processing') { %>
+        <!-- IN PROGRESS VIEW -->
+        <div class="card shadow border-0 overflow-hidden">
+            <div class="card-header bg-primary text-white p-4 text-center">
+                <h4 class="mb-1"><i class="fas fa-tools me-2"></i>SERVICE IN PROGRESS</h4>
+                <p class="mb-0 small opacity-75">Your order is being processed</p>
+            </div>
+
+            <div class="card-body p-4 text-center">
+                <div class="mb-4">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h5 class="fw-bold"><%= order.operator ? order.operator.user.name : 'Operator' %> is working on it</h5>
+                </div>
+
+                <div class="row text-start bg-light p-3 rounded mb-4 mx-1">
+                    <div class="col-6 border-end">
+                        <small class="text-muted d-block">Started</small>
+                        <strong><%= startedAt ? new Date(startedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--' %></strong>
+                    </div>
+                    <div class="col-6 ps-3">
+                        <small class="text-muted d-block">Est. Completion</small>
+                        <% 
+                           // Simple calc: startedAt + duration (15 min default)
+                           let completionTime = '--:--';
+                           if (startedAt) {
+                               const dur = order.items[0].service && order.items[0].service.duration ? order.items[0].service.duration : 15;
+                               const end = new Date(new Date(startedAt).getTime() + dur*60000);
+                               completionTime = end.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                           }
+                        %>
+                        <strong><%= completionTime %></strong>
+                    </div>
+                </div>
+
+                <form action="/orders/<%= order._id %>/chat/request" method="POST">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-comment me-2"></i>Message Operator
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    <% } else if (order.status === 'completed') { %>
+        <!-- COMPLETED VIEW -->
+        <div class="card shadow border-0 overflow-hidden">
+            <div class="card-header bg-success text-white p-4 text-center">
+                <h4 class="mb-1"><i class="fas fa-check-circle me-2"></i>SERVICE COMPLETED</h4>
+                <p class="mb-0 small opacity-75">Thank you for visiting!</p>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h1 class="display-4 fw-bold text-success mb-0">$<%= order.totalAmount.toFixed(2) %></h1>
+                    <small class="text-muted">Total Paid</small>
+                </div>
+
+                <ul class="list-group list-group-flush mb-4">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">Completed At</span>
+                        <strong><%= completedAt ? new Date(completedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Just now' %></strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">Item</span>
+                        <strong><%= order.items[0].name %></strong>
+                    </li>
+                </ul>
+
+                <div class="d-grid gap-2">
+                    <a href="/shop/<%= order.business._id %>" class="btn btn-primary">
+                        <i class="fas fa-star me-2"></i> Rate Your Experience
+                    </a>
+                    <a href="/services/<%= order.items[0].service ? order.items[0].service._id : '' %>/chat" class="btn btn-outline-success">
+                        <i class="fas fa-redo me-2"></i> Book Same Service Again
+                    </a>
+                    <a href="/orders/<%= order._id %>" class="btn btn-outline-secondary">
+                        <i class="fas fa-receipt me-2"></i> View Receipt
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    <% } else { %>
+        <!-- Default/Other Status -->
+        <div class="card shadow border-0">
+            <div class="card-header bg-secondary text-white text-center p-4">
+                <h4 class="mb-0 text-uppercase"><%= order.status %></h4>
+            </div>
+            <div class="card-body p-4 text-center">
+                <p class="lead">Order Status: <%= order.status %></p>
+                <a href="/orders/<%= order._id %>" class="btn btn-primary">View Details</a>
+            </div>
+        </div>
+    <% } %>
+</div>

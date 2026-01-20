@@ -1,0 +1,124 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Queue Management</h1>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header py-3 bg-primary text-white">
+                <h6 class="m-0 font-weight-bold">Active Queue</h6>
+            </div>
+            <div class="card-body">
+                <% if (activeOrders.length > 0) { %>
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Service</th>
+                                    <th>Status</th>
+                                    <th>Created At</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% activeOrders.forEach(function(order) { %>
+                                    <tr>
+                                        <td><a href="/operator/queue/<%= order._id %>">#<%= order._id.toString().slice(-6).toUpperCase() %></a></td>
+                                        <td>
+                                            <%= order.customer ? order.customer.name : order.customerName || 'Guest' %>
+                                            <% if (order.customer) { %>
+                                                <% getUserBadges(order.customer).forEach(badge => { %>
+                                                    <br><span class="badge bg-<%= badge.color %>" style="font-size: 0.6em;"><%= badge.label %></span>
+                                                <% }) %>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <strong><%= order.items[0].service ? order.items[0].service.name : 'Unknown' %></strong>
+                                            <br>
+                                            <small class="text-muted"><%= order.items[0].name %></small>
+                                        </td>
+                                        <td>
+                                            <% if (order.status === 'pending') { %>
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            <% } else if (order.status === 'processing') { %>
+                                                <span class="badge bg-info text-white">In Progress</span>
+                                            <% } %>
+                                        </td>
+                                        <td><%= new Date(order.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %></td>
+                                        <td>
+                                            <% if (order.status === 'pending') { %>
+                                                <form action="/operator/queue/<%= order._id %>/status" method="POST" class="d-inline">
+                                                    <input type="hidden" name="status" value="processing">
+                                                    <button type="submit" class="btn btn-primary btn-sm">Start</button>
+                                                </form>
+                                            <% } else if (order.status === 'processing') { %>
+                                                <form action="/operator/queue/<%= order._id %>/status" method="POST" class="d-inline">
+                                                    <input type="hidden" name="status" value="completed">
+                                                    <button type="submit" class="btn btn-success btn-sm">Complete</button>
+                                                </form>
+                                            <% } %>
+                                            
+                                            <!-- Cancel (Small link/icon) -->
+                                            <!-- Use a modal in real app, simplistic here -->
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } else { %>
+                    <p class="text-center text-muted my-4">No active orders in your queue.</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-secondary">Recently Completed</h6>
+            </div>
+            <div class="card-body">
+                 <% if (completedOrders.length > 0) { %>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Service</th>
+                                    <th>Status</th>
+                                    <th>Completed At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% completedOrders.forEach(function(order) { %>
+                                    <tr>
+                                        <td><small><a href="/operator/queue/<%= order._id %>">#<%= order._id.toString().slice(-6).toUpperCase() %></a></small></td>
+                                        <td><%= order.customer ? order.customer.name : order.customerName %></td>
+                                        <td><%= order.items[0].service ? order.items[0].service.name : 'Unknown' %></td>
+                                        <td>
+                                            <% if (order.status === 'completed') { %>
+                                                <span class="badge bg-success">Completed</span>
+                                            <% } else { %>
+                                                <span class="badge bg-secondary"><%= order.status %></span>
+                                            <% } %>
+                                        </td>
+                                        <!-- Find completion time from history or just updatedAt if simple -->
+                                        <td><%= order.completedAt ? new Date(order.completedAt).toLocaleString() : (order.updatedAt ? new Date(order.updatedAt).toLocaleString() : 'N/A') %></td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                 <% } else { %>
+                    <p class="text-muted">No history yet.</p>
+                 <% } %>
+            </div>
+        </div>
+    </div>
+</div>

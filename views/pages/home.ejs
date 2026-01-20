@@ -1,0 +1,203 @@
+<!-- Hero Section -->
+    <div class="bg-dark text-white p-5 mb-4 rounded-3 text-center home-hero" style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/assets/shops.png') no-repeat center center; background-size: cover;">
+        <div class="container-fluid py-5">
+            <h1 class="display-4 fw-bold">Find Everything You Need</h1>
+            <p class="col-md-8 fs-4 mx-auto">Connecting you with the best local retail and service businesses.</p>
+            
+            <div class="row justify-content-center mt-4">
+                <div class="col-md-6">
+                    <form action="/search" method="GET" class="d-flex">
+                        <input class="form-control me-2 form-control-lg" type="search" name="q" placeholder="Search for products, services, or businesses..." aria-label="Search">
+                        <button class="btn btn-primary btn-lg" type="submit">Search</button>
+                    </form>
+                </div>
+            </div>
+
+            <% if (!user) { %>
+                <div class="mt-4">
+                    <a href="/users/signup" class="btn btn-outline-light me-2">Join as Customer</a>
+                    <a href="/users/business/register" class="btn btn-warning">Register Your Business</a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Categories Section -->
+    <div class="container mb-5">
+        <h2 class="text-center mb-4">Browse Categories</h2>
+        <div class="row g-4 justify-content-center">
+            <div class="col-6 col-md-2 text-center">
+                <a href="/search?category=Retail" class="text-decoration-none text-dark">
+                    <div class="card h-100 border-0 shadow-sm category-card">
+                        <div class="card-body">
+                            <i class="fas fa-shopping-bag fa-2x text-primary mb-2"></i>
+                            <h5 class="card-title fs-6">Retail</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-2 text-center">
+                <a href="/search?category=Services" class="text-decoration-none text-dark">
+                    <div class="card h-100 border-0 shadow-sm category-card">
+                        <div class="card-body">
+                            <i class="fas fa-tools fa-2x text-success mb-2"></i>
+                            <h5 class="card-title fs-6">Services</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-2 text-center">
+                <a href="/search?category=Food" class="text-decoration-none text-dark">
+                    <div class="card h-100 border-0 shadow-sm category-card">
+                        <div class="card-body">
+                            <i class="fas fa-utensils fa-2x text-danger mb-2"></i>
+                            <h5 class="card-title fs-6">Food</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-2 text-center">
+                <a href="/search?category=Health" class="text-decoration-none text-dark">
+                    <div class="card h-100 border-0 shadow-sm category-card">
+                        <div class="card-body">
+                            <i class="fas fa-heartbeat fa-2x text-info mb-2"></i>
+                            <h5 class="card-title fs-6">Health</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+             <div class="col-6 col-md-2 text-center">
+                <a href="/search?category=Technology" class="text-decoration-none text-dark">
+                    <div class="card h-100 border-0 shadow-sm category-card">
+                        <div class="card-body">
+                            <i class="fas fa-laptop fa-2x text-warning mb-2"></i>
+                            <h5 class="card-title fs-6">Tech</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Businesses -->
+    <div class="container mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3>Featured Businesses</h3>
+            <a href="/businesses" class="btn btn-outline-primary btn-sm">View All</a>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+            <% if(businesses && businesses.length > 0) { %>
+                <% businesses.forEach(business => { %>
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            <!-- Business Image or Placeholder -->
+                            <img src="<%= business.image ? business.image : 'https://source.unsplash.com/400x200/?store,' + business.type %>" class="card-img-top" alt="<%= business.name %>" style="height: 160px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= business.name %></h5>
+                                <p class="card-text text-muted small"><%= business.category %> • <%= business.type %></p>
+                                <p class="card-text text-truncate"><%= business.description %></p>
+                            </div>
+                            <div class="card-footer bg-white border-top-0">
+                                <a href="/shop/<%= business._id %>" class="btn btn-primary btn-sm w-100">Visit Store</a>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p class="text-muted">No businesses found.</p>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Latest Products -->
+    <div class="container mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3>Latest Products</h3>
+            <a href="/products" class="btn btn-outline-primary btn-sm">View All</a>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+             <% if(products && products.length > 0) { %>
+                <% products.forEach(product => { %>
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            <img src="<%= (product.images && product.images.length > 0) ? product.images[0] : 'https://source.unsplash.com/400x300/?product,' + product.category %>" class="card-img-top" alt="<%= product.name %>">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= product.name %></h5>
+                                <p class="card-text fw-bold text-primary">$<%= product.price.toFixed(2) %></p>
+                                <% if(product.business) { %>
+                                    <p class="card-text small text-muted">Sold by: <%= product.business.name %></p>
+                                <% } %>
+                                
+                                <% if(product.tags && product.tags.length > 0) { %>
+                                    <div class="mb-2">
+                                        <% product.tags.slice(0, 3).forEach(tag => { %>
+                                            <span class="badge bg-light text-dark border"><%= tag %></span>
+                                        <% }) %>
+                                    </div>
+                                <% } %>
+                            </div>
+                            <div class="card-footer bg-white border-top-0 d-flex justify-content-between align-items-center">
+                                <a href="/products/<%= product._id %>" class="btn btn-outline-dark btn-sm flex-grow-1 me-2">View</a>
+                                <% if(user) { %>
+                                    <form action="/cart/add" method="POST" class="d-flex">
+                                        <input type="hidden" name="itemId" value="<%= product._id %>">
+                                        <input type="hidden" name="itemType" value="product">
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-cart-plus"></i></button>
+                                    </form>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p class="text-muted">No products found.</p>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Popular Services -->
+    <div class="container mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3>Popular Services</h3>
+            <a href="/services" class="btn btn-outline-primary btn-sm">View All</a>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+            <% if(services && services.length > 0) { %>
+                <% services.forEach(service => { %>
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            <div class="position-relative" style="height: 180px; overflow: hidden;">
+                                <% if(service.images && service.images.length > 0) { %>
+                                    <img src="<%= service.images[0] %>" class="card-img-top h-100 w-100" alt="<%= service.name %>" style="object-fit: cover;">
+                                <% } else { %>
+                                    <div class="d-flex align-items-center justify-content-center h-100 bg-light text-secondary">
+                                        <i class="fas fa-tools fa-3x opacity-25"></i>
+                                    </div>
+                                <% } %>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title"><%= service.name %></h5>
+                                <p class="card-text fw-bold text-success">$<%= service.price.toFixed(2) %> <small class="text-muted fw-normal">/ <%= service.duration %> mins</small></p>
+                                <p class="card-text"><%= service.description.substring(0, 80) %>...</p>
+                                
+                                <% if(service.tags && service.tags.length > 0) { %>
+                                    <div class="mb-2">
+                                        <% service.tags.slice(0, 3).forEach(tag => { %>
+                                            <span class="badge bg-light text-dark border"><%= tag %></span>
+                                        <% }) %>
+                                    </div>
+                                <% } %>
+
+                            </div>
+                             <div class="card-footer bg-white border-top-0">
+                                <a href="/services/<%= service._id %>" class="btn btn-outline-success btn-sm w-100">Details</a>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                 <p class="text-muted">No services found.</p>
+            <% } %>
+        </div>
+    </div>

@@ -1,0 +1,58 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Services</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="/sme/business/<%= business._id %>/services/add" class="btn btn-sm btn-outline-primary">
+            Add Service
+        </a>
+    </div>
+</div>
+
+<div class="list-group">
+    <% if (services.length > 0) { %>
+        <% services.forEach(function(service) { %>
+            <div class="list-group-item list-group-item-action d-flex flex-column flex-sm-row align-items-start">
+                <div class="me-0 me-sm-3 mb-3 mb-sm-0">
+                    <% if(service.images && service.images.length > 0) { %>
+                        <img src="<%= service.images[0] %>" style="width: 100px; height: 100px; object-fit: cover;" class="rounded">
+                    <% } else { %>
+                        <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                            <i class="fas fa-tools text-muted fa-2x"></i>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="w-100">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">
+                            <%= service.name %>
+                            <% if (service.status === 'active') { %>
+                                <span class="badge bg-success">Active</span>
+                            <% } else { %>
+                                <span class="badge bg-secondary">Inactive</span>
+                            <% } %>
+                        </h5>
+                        <small class="text-muted">$<%= service.price %></small>
+                    </div>
+                    <p class="mb-1"><%= service.description %></p>
+                    <div class="d-flex w-100 justify-content-between align-items-center mt-2">
+                        <small>Duration: <%= service.duration %> mins</small>
+                        <div class="btn-group">
+                            <a href="/sme/business/<%= business._id %>/services/<%= service._id %>/builder" class="btn btn-sm btn-outline-info">
+                                <i class="fas fa-project-diagram"></i> Open Script Builder
+                            </a>
+                            <a href="/sme/business/<%= business._id %>/services/<%= service._id %>/edit" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <form action="/sme/business/<%= business._id %>/services/<%= service._id %>/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this service?');" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+    <% } else { %>
+        <p class="text-center">No services found.</p>
+    <% } %>
+</div>
