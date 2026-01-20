@@ -396,7 +396,7 @@ exports.postCreateBusiness = async (req, res) => {
       contactPhone,
       contactEmail,
       hours,
-      image: req.file ? '/uploads/' + req.file.filename : undefined,
+      image: req.file ? (req.file.path && req.file.path.startsWith('http') ? req.file.path : '/uploads/' + req.file.filename) : undefined,
       status: status ? 'active' : 'inactive'
     });
 
@@ -541,7 +541,7 @@ exports.postEditBusiness = async (req, res) => {
         };
 
         if (req.file) {
-            updateData.image = '/uploads/' + req.file.filename;
+            updateData.image = (req.file.path && req.file.path.startsWith('http')) ? req.file.path : '/uploads/' + req.file.filename;
         }
 
         await Business.findByIdAndUpdate(req.params.id, updateData);
@@ -849,9 +849,7 @@ exports.postAddProduct = async (req, res) => {
             tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
         }
 
-        const images = req.files ? req.files.map(file => '/uploads/' + file.filename) : [];
-
-        const newProduct = new Product({
+        const images = req.files ? req.files.map(file => (file.path && file.path.startsWith('http')) ? file.path : '/uploads/' + file.filename) : [];
             business: business._id,
             name,
             description,
@@ -916,14 +914,7 @@ exports.postEditProduct = async (req, res) => {
             return res.redirect('/sme/dashboard');
         }
 
-        const { name, description, price, stock, category, tags, status, deleteImages } = req.body;
-
-        let tagsArray = [];
-        if (tags) {
-            tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
-        }
-
-        const newImages = req.files ? req.files.map(file => '/uploads/' + file.filename) : [];
+        const newImages = req.files ? req.files.map(file => (file.path && file.path.startsWith('http')) ? file.path : '/uploads/' + file.filename) : [];
         
         const updateData = {
             name,
@@ -1166,7 +1157,7 @@ exports.postAddService = async (req, res) => {
             tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
         }
 
-        const images = req.files ? req.files.map(file => '/uploads/' + file.filename) : [];
+        const images = req.files ? req.files.map(file => (file.path && file.path.startsWith('http')) ? file.path : '/uploads/' + file.filename) : [];
 
         const newService = new Service({
             business: business._id,
@@ -1239,7 +1230,7 @@ exports.postEditService = async (req, res) => {
             tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
         }
 
-        const newImages = req.files ? req.files.map(file => '/uploads/' + file.filename) : [];
+        const newImages = req.files ? req.files.map(file => (file.path && file.path.startsWith('http')) ? file.path : '/uploads/' + file.filename) : [];
 
         const updateData = {
             name,
