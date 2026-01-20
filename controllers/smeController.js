@@ -850,6 +850,8 @@ exports.postAddProduct = async (req, res) => {
         }
 
         const images = req.files ? req.files.map(file => (file.path && file.path.startsWith('http')) ? file.path : '/uploads/' + file.filename) : [];
+
+        const newProduct = new Product({
             business: business._id,
             name,
             description,
