@@ -183,7 +183,24 @@
         if (data.success) {
             window.location.href = data.redirect;
         } else {
-            alert('Error processing request');
+            // Show error message mimicking flash
+            const errorMsg = data.error || 'Error processing request';
+            
+            const container = document.querySelector('.container');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show mb-3';
+            alertDiv.role = 'alert';
+            alertDiv.innerHTML = `
+                ${errorMsg}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            // Insert before the card
+            const card = document.querySelector('.card');
+            container.insertBefore(alertDiv, card);
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }
 

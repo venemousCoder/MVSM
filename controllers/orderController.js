@@ -3,6 +3,7 @@ const Order = require('../models/Order');
 const Product = require('../models/Product');
 const Service = require('../models/Service');
 const User = require('../models/User');
+const paystack = require('../utils/paystack');
 
 // @desc    Show Checkout Page
 // @route   GET /checkout
@@ -32,7 +33,7 @@ exports.getCheckout = async (req, res) => {
 // @route   POST /checkout
 exports.postCheckout = async (req, res) => {
     try {
-        const { address, phone } = req.body;
+        const { address, phone, paymentMethod } = req.body;
         
         // Validation
         if (!address || !phone) {
@@ -57,6 +58,7 @@ exports.postCheckout = async (req, res) => {
 
         // Group items by Business
         const ordersByBusiness = {};
+        let grandTotal = 0;
 
         for (const item of cart.items) {
             let businessId;
@@ -88,6 +90,7 @@ exports.postCheckout = async (req, res) => {
             });
 
             ordersByBusiness[businessId].total += (item.price * item.quantity);
+            grandTotal += (item.price * item.quantity);
 
             // Optional: Stock check/update could happen here
             if (item.itemType === 'product' && item.product) {
@@ -97,6 +100,8 @@ exports.postCheckout = async (req, res) => {
                  });
             }
         }
+
+        const paymentReference = 'MVSM_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
 
         // Create Orders
         const orderPromises = Object.keys(ordersByBusiness).map(async (businessId) => {
@@ -109,10 +114,13 @@ exports.postCheckout = async (req, res) => {
                 items: orderData.items,
                 totalAmount: orderData.total,
                 status: 'pending',
+                paymentMethod: paymentMethod || 'cod',
+                paymentStatus: 'pending',
+                paymentReference: paymentReference,
                 history: [{
                     action: 'created',
                     status: 'pending',
-                    note: `Order placed. Address: ${address}, Phone: ${phone}`,
+                    note: `Order placed. Address: ${address}, Phone: ${phone}. Payment: ${paymentMethod}`,
                     user: req.user._id
                 }]
                 // In a real app, store shipping address separately in the order
@@ -126,6 +134,33 @@ exports.postCheckout = async (req, res) => {
         cart.items = [];
         await cart.save();
 
+        if (paymentMethod === 'paystack') {
+            const callbackUrl = `${req.protocol}://${req.get('host')}/checkout/verify`;
+            const paymentData = {
+                email: req.user.email,
+                amount: Math.round(grandTotal * 100), // Paystack expects amount in kobo
+                reference: paymentReference,
+                callback_url: callbackUrl,
+                metadata: {
+                    cancel_action: `${req.protocol}://${req.get('host')}/cart`
+                }
+            };
+
+            try {
+                const response = await paystack.initializePayment(paymentData);
+                if (response.status && response.data.authorization_url) {
+                    return res.redirect(response.data.authorization_url);
+                } else {
+                    req.flash('error_msg', 'Paystack initialization failed');
+                    return res.redirect('/checkout');
+                }
+            } catch (err) {
+                console.error('Paystack Init Error:', err);
+                req.flash('error_msg', 'Payment initialization failed. Please try again.');
+                return res.redirect('/checkout');
+            }
+        }
+
         res.render('checkout/success', {
             title: 'Order Placed',
             user: req.user
@@ -135,5 +170,52 @@ exports.postCheckout = async (req, res) => {
         console.error(err);
         req.flash('error_msg', 'An error occurred during checkout');
         res.redirect('/checkout');
+    }
+};
+
+// @desc    Verify Paystack Payment
+// @route   GET /checkout/verify
+exports.verifyPayment = async (req, res) => {
+    try {
+        const { reference, trxref } = req.query;
+        const ref = reference || trxref;
+
+        if (!ref) {
+            req.flash('error_msg', 'No payment reference provided');
+            return res.redirect('/cart');
+        }
+
+        const response = await paystack.verifyPayment(ref);
+
+        if (response.status && response.data.status === 'success') {
+            // Update orders
+            await Order.updateMany(
+                { paymentReference: ref },
+                { 
+                    paymentStatus: 'paid',
+                    $push: {
+                        history: {
+                            action: 'payment_verified',
+                            status: 'paid',
+                            note: `Payment verified via Paystack. Ref: ${ref}`,
+                            user: req.user._id
+                        }
+                    }
+                }
+            );
+
+            res.render('checkout/success', {
+                title: 'Payment Successful',
+                user: req.user
+            });
+        } else {
+            req.flash('error_msg', 'Payment verification failed');
+            res.redirect('/cart');
+        }
+
+    } catch (err) {
+        console.error(err);
+        req.flash('error_msg', 'Error verifying payment');
+        res.redirect('/cart');
     }
 };

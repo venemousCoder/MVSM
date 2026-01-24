@@ -7,5 +7,6 @@ router.use(ensureAuthenticated);
 
 router.get('/', orderController.getCheckout);
 router.post('/', orderController.postCheckout);
+router.get('/verify', orderController.verifyPayment);
 
 module.exports = router;
